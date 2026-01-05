@@ -1,0 +1,174 @@
+.tableCard {
+    background-color: var(--bg-white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    margin-top: 2rem;
+    overflow: hidden;
+}
+
+.header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.actions {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.filterBtn,
+.exportBtn {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+}
+
+.filterBtn {
+    background: white;
+    border: 1px solid var(--border-color);
+}
+
+.exportBtn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: 500;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.table td {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.studentCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.studentName {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.studentCourse {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.mono {
+    font-family: monospace;
+    color: var(--text-secondary);
+}
+
+.dateCell {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeSub {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.statusBadge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+}
+
+.confirmed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.cancelled {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.5;
+}
+
+.actionBtn:hover {
+    opacity: 1;
+}
+
+.pagination {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.pageBtns button {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border-color);
+    background: white;
+    margin-left: 0.5rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+}
+
+.pageBtns button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

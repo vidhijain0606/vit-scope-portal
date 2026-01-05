@@ -1,0 +1,89 @@
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: var(--bg-white);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 90;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.homeLink {
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.separator {
+    color: #dee2e6;
+}
+
+.current {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sub {
+    color: var(--text-secondary);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.searchBox {
+    position: relative;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.searchInput {
+    padding: 0.5rem 1rem 0.5rem 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background-color: #f8f9fa;
+    font-size: 0.9rem;
+    width: 250px;
+    outline: none;
+}
+
+.searchInput:focus {
+    background-color: white;
+    border-color: var(--primary-color);
+}
+
+.bellBtn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: relative;
+}
+
+.dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger-color);
+    border-radius: 50%;
+    border: 2px solid white;
+}

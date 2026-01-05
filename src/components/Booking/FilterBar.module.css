@@ -1,0 +1,51 @@
+.filterBar {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-white);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+}
+
+.label {
+    font-weight: 700;
+    color: #adb5bd;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.filterGroup {
+    display: flex;
+    gap: 1rem;
+}
+
+.dropdown {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f8f9fa;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dropdown:hover {
+    background-color: #e9ecef;
+}
+
+.icon {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.arrow {
+    font-size: 0.6rem;
+    color: var(--text-secondary);
+    margin-left: 0.25rem;
+}

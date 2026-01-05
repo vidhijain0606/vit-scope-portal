@@ -1,0 +1,194 @@
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 1rem;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Upload Card - Premium Feel */
+.uploadCard {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    /* Premium shadow */
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    position: sticky;
+    top: 2rem;
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 0.5rem;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #444;
+}
+
+.formGroup input,
+.formGroup textarea {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    background: #fafafa;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.formGroup textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* List Section */
+.listSection {
+    flex: 1;
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.docCard {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #eee;
+    display: flex;
+    gap: 1rem;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.docCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.06);
+}
+
+.docIcon {
+    font-size: 2rem;
+    background: #f0f7ff;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.docContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.docTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #222;
+    margin: 0 0 0.25rem 0;
+}
+
+.docDesc {
+    font-size: 0.85rem;
+    color: #666;
+    margin: 0 0 0.75rem 0;
+    line-height: 1.4;
+}
+
+.docLink {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #007bff;
+    text-decoration: none;
+    margin-top: auto;
+    display: inline-block;
+}
+
+.docLink:hover {
+    text-decoration: underline;
+}
+
+.deleteBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.3;
+    transition: opacity 0.2s;
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.deleteBtn:hover {
+    opacity: 1;
+}
+
+.loading,
+.empty {
+    text-align: center;
+    padding: 3rem;
+    color: #888;
+    background: #f9f9f9;
+    border-radius: 8px;
+}

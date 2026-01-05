@@ -1,0 +1,47 @@
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.pageTitle {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* Removed .calendarCol as it is no longer used */
+
+.gridCol {
+    flex: 1;
+}
+
+.sidebarCol {
+    width: 350px;
+    flex-shrink: 0;
+}
+
+/* Response layout for smaller screens */
+@media (max-width: 1200px) {
+    .layout {
+        flex-wrap: wrap;
+    }
+
+    .sidebarCol {
+        width: 100%;
+        margin-top: 2rem;
+    }
+}

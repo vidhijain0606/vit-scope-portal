@@ -1,0 +1,77 @@
+.calendar {
+    background-color: var(--bg-white);
+    border-radius: var(--border-radius-md);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.monthTitle {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.navBtn {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+.navBtn:hover {
+    color: var(--text-primary);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.dayLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #adb5bd;
+    margin-bottom: 0.5rem;
+}
+
+.dayCell {
+    display: flex;
+    justify-content: center;
+}
+
+.dayBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.dayBtn:hover:not(.selected) {
+    background-color: #f1f3f5;
+}
+
+.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+}
