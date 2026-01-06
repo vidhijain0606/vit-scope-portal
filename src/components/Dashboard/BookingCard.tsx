@@ -71,8 +71,15 @@ const BookingCard: React.FC<BookingCardProps> = ({
                         Join Meeting 📹
                     </Button>
                 ) : (
-                    <Button variant={status === 'cancelled' ? 'secondary' : 'primary'} size="sm" disabled={status === 'cancelled'}>
-                        View Details →
+                    <Button
+                        variant={status === 'cancelled' ? 'secondary' : 'primary'}
+                        size="sm"
+                        disabled={status === 'cancelled'}
+                        onClick={() => {
+                            window.open('https://vtop.vit.ac.in', '_blank');
+                        }}
+                    >
+                        Book on VTOP →
                     </Button>
                 )}
             </div>

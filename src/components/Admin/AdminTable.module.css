@@ -31,20 +31,13 @@
     gap: 1rem;
 }
 
-.filterBtn,
+
+
 .exportBtn {
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
     border-radius: var(--border-radius-sm);
     cursor: pointer;
-}
-
-.filterBtn {
-    background: white;
-    border: 1px solid var(--border-color);
-}
-
-.exportBtn {
     background: var(--primary-color);
     color: white;
     border: none;
@@ -148,27 +141,4 @@
 
 .actionBtn:hover {
     opacity: 1;
-}
-
-.pagination {
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-
-.pageBtns button {
-    padding: 0.25rem 0.75rem;
-    border: 1px solid var(--border-color);
-    background: white;
-    margin-left: 0.5rem;
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-}
-
-.pageBtns button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }

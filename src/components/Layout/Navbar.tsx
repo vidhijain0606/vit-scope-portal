@@ -38,13 +38,15 @@ const Navbar = () => {
 
     const handleLogout = async () => {
         try {
+            // Perform sign out
             const { error } = await supabase.auth.signOut();
             if (error) console.error('Error logging out:', error);
+
+            // Hard redirect to clear any state
+            window.location.href = '/';
         } catch (error) {
             console.error('Unexpected error logging out:', error);
-        } finally {
-            router.push('/');
-            router.refresh();
+            window.location.href = '/';
         }
     };
 

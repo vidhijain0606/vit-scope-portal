@@ -67,7 +67,7 @@ const AdminTable = () => {
                 <p className={styles.subtitle}>Preview all booked research slots and download the data.</p>
 
                 <div className={styles.actions}>
-                    <button className={styles.filterBtn}>Filter</button>
+
                     <button className={styles.exportBtn} onClick={handleExport}>Export All to CSV</button>
                 </div>
             </header>
@@ -121,13 +121,7 @@ const AdminTable = () => {
                 </tbody>
             </table>
 
-            <div className={styles.pagination}>
-                <span>Showing 1-4 of 24 results</span>
-                <div className={styles.pageBtns}>
-                    <button disabled>Previous</button>
-                    <button>Next</button>
-                </div>
-            </div>
+
         </div>
     );
 };

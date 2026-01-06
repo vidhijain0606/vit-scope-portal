@@ -6,10 +6,14 @@ import SlotGrid from './SlotGrid';
 import BookingSidebar from './BookingSidebar';
 import { supabase } from '@/utils/supabase';
 
+// ... imports
+import SuccessModal from '../UI/SuccessModal';
+
 export default function BookingView() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleSlotSelect = (id: string, dateStr: string, start: string, end: string) => {
         setSelectedSlotId(id);
@@ -67,9 +71,10 @@ export default function BookingView() {
 
             if (slotError) throw slotError;
 
-            // 4. Success Message as requested
-            alert('BOOK SLOT ON VTOP !');
-            window.location.href = '/dashboard';
+            // 4. Success Message -> Custom Modal
+            setShowSuccessModal(true);
+
+            // window.location.href = '/dashboard'; // Move this to modal action
         } catch (err: any) {
             console.error('Booking failed', err);
             alert(`Failed to book slot: ${err.message || err.details || JSON.stringify(err)}`);
@@ -78,6 +83,15 @@ export default function BookingView() {
 
     return (
         <div className={styles.container}>
+            {showSuccessModal && (
+                <SuccessModal
+                    onClose={() => window.location.href = '/dashboard'}
+                    onVtop={() => {
+                        window.open('https://vtop.vit.ac.in', '_blank');
+                        window.location.href = '/dashboard';
+                    }}
+                />
+            )}
             <h1 className={styles.pageTitle}>Book a Research Consultation</h1>
             <p className={styles.pageSubtitle}>Select an available time slot below to schedule your meeting with a faculty member.</p>
 

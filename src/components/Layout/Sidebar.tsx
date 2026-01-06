@@ -33,18 +33,37 @@ const Sidebar = () => {
             </div>
 
             <nav className={styles.nav}>
-                <Link href="/admin/dashboard" className={`${styles.navItem} ${isActive('/admin/dashboard')}`}>
-                    <span className={styles.icon}>📊</span>
-                    Dashboard
-                </Link>
-                <Link href="/admin/add-slots" className={`${styles.navItem} ${isActive('/admin/add-slots')}`}>
-                    <span className={styles.icon}>🕒</span>
-                    Add Slots
-                </Link>
-                <Link href="/admin/documents" className={`${styles.navItem} ${isActive('/admin/documents')}`}>
-                    <span className={styles.icon}>📁</span>
-                    Documents
-                </Link>
+                {/* Admin Links */}
+                {pathname.startsWith('/admin') && (
+                    <>
+                        <Link href="/admin/dashboard" className={`${styles.navItem} ${isActive('/admin/dashboard')}`}>
+                            <span className={styles.icon}>📊</span>
+                            Dashboard
+                        </Link>
+                        <Link href="/admin/add-slots" className={`${styles.navItem} ${isActive('/admin/add-slots')}`}>
+                            <span className={styles.icon}>🕒</span>
+                            Add Slots
+                        </Link>
+                        <Link href="/admin/documents" className={`${styles.navItem} ${isActive('/admin/documents')}`}>
+                            <span className={styles.icon}>📁</span>
+                            Documents (Upload)
+                        </Link>
+                    </>
+                )}
+
+                {/* Faculty/Dashboard Links */}
+                {pathname.startsWith('/dashboard') && (
+                    <>
+                        <Link href="/dashboard" className={`${styles.navItem} ${isActive('/dashboard')}`}>
+                            <span className={styles.icon}>📅</span>
+                            My Schedule
+                        </Link>
+                        <Link href="/dashboard/documents" className={`${styles.navItem} ${isActive('/dashboard/documents')}`}>
+                            <span className={styles.icon}>📥</span>
+                            Documents
+                        </Link>
+                    </>
+                )}
             </nav>
 
             <div className={styles.footer}>
@@ -53,14 +72,10 @@ const Sidebar = () => {
                         <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="Admin" />
                     </div>
                     <div className={styles.userInfo}>
-                        <span className={styles.userName}>Dr. A. Sharma</span>
-                        <span className={styles.userRole}>Admin Access</span>
+                        <span className={styles.userName}>Admin</span>
+                        <span className={styles.userRole}>Super Admin</span>
                     </div>
                 </div>
-
-                <button className={styles.logoutBtn} onClick={handleLogout}>
-                    ↪ Logout
-                </button>
             </div>
         </aside>
     );

@@ -85,7 +85,7 @@ export default function LoginPage() {
                 <span>FOR ADMINS</span>
               </div>
 
-              <Link href="/admin" className={styles.adminLink}>
+              <Link href="/admin-login" className={styles.adminLink}>
                 Login with Admin Credentials
               </Link>
             </div>

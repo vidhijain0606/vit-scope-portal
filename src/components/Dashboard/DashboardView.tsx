@@ -76,15 +76,21 @@ export default function DashboardView() {
 
             // 3. Make the slot available again
             // matching by date, start_time, end_time since we don't have slot_id linkage
+            // IMPORTANT: `bookingData.date` might be full timestamp or date string string. 
+            // `slots.date` is date column.
+            const dateStr = new Date(bookingData.date).toISOString().split('T')[0];
+
             const { error: slotError } = await supabase
                 .from('slots')
                 .update({ is_available: true })
-                .eq('date', bookingData.date)
+                .eq('date', dateStr)
                 .eq('start_time', bookingData.start_time)
                 .eq('end_time', bookingData.end_time);
 
             if (slotError) {
                 console.warn('Could not free up slot automatically', slotError);
+                // Try alternate match without date formatting if needed? 
+                // Usually Supabase date column handles YYYY-MM-DD
             }
 
             // 4. Update UI locally

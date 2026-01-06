@@ -74,8 +74,8 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
             {loading ? <div style={{ width: '100%', textAlign: 'center', padding: '2rem' }}>Loading available slots...</div> :
                 Object.keys(groupedSlots).length === 0 ? (
                     <div className={styles.emptyState}>
-                        <p>No available slots found.</p>
-                        <a href="/admin/add-slots" className={styles.createLink}>+ Create New Slots</a>
+                        <p>No available slots found for the upcoming dates.</p>
+                        {/* Manual creation disabled */}
                     </div>
                 ) :
                     Object.entries(groupedSlots).map(([date, dateSlots]) => (
@@ -91,7 +91,14 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
                                   ${styles.slot} 
                                   ${selectedSlotId === slot.id ? styles.selected : ''}
                                 `}
-                                        onClick={() => onSlotSelect(slot.id, slot.date, slot.startTime, slot.endTime)}
+                                        onClick={() => {
+                                            onSlotSelect(slot.id, slot.date, slot.startTime, slot.endTime);
+                                            // Scroll to sidebar on select
+                                            setTimeout(() => {
+                                                const sidebar = document.getElementById('booking-sidebar');
+                                                if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }, 100);
+                                        }}
                                     >
                                         <div className={styles.topRow}>
                                             <span className={styles.time}>{slot.startTime}</span>

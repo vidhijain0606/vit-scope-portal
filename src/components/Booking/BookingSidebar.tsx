@@ -18,8 +18,13 @@ interface BookingSidebarProps {
     onConfirm: (details: BookingDetails) => void;
 }
 
+
+// ... (imports)
+
 const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedSlotId, selectedTime, onConfirm }) => {
     const [step, setStep] = useState<'summary' | 'details'>('summary');
+    const [vtopChecked, setVtopChecked] = useState(false); // New state for checkbox
+
     const [formData, setFormData] = useState<BookingDetails>({
         empId: '',
         empName: '',
@@ -29,7 +34,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
         meetingType: 'Synopsis'
     });
 
-    // Auto-fetch user details when mounting or changing slots
+    // ... (useEffect for user fetch same as before)
     React.useEffect(() => {
         const fetchUser = async () => {
             const { data: { user } } = await import('@/utils/supabase').then(m => m.supabase.auth.getUser());
@@ -37,27 +42,28 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
                 setFormData(prev => ({
                     ...prev,
                     email: user.email || '',
-                    // The logged in user is the FACULTY (Employee), so pre-fill Emp Name
                     empName: prev.empName || user.user_metadata?.full_name || '',
-                    // Scholar details are entered manually by the faculty
                     scholarName: prev.scholarName || ''
                 }));
             }
         };
         fetchUser();
     }, [selectedSlotId]);
-    // Note: Dependencies here ensure we check when sidebar opens/resets
 
-    // Reset step when slot changes
+    // Reset step AND scroll to top when slot changes
     React.useEffect(() => {
         setStep('summary');
-        // We preserve the fetched user data, only reset if needed. 
-        // Actually, let's keep the user data if already fetched.
+        setVtopChecked(false); // Reset checkbox
         setFormData(prev => ({
             ...prev,
             meetingType: 'Synopsis'
-            // Keep name/email populated
         }));
+
+        // Scroll to sidebar on mobile/smaller screens if needed, or just focus
+        if (selectedSlotId) {
+            const sidebar = document.getElementById('booking-sidebar');
+            if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }, [selectedSlotId]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -78,7 +84,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
     // If no slot is selected, show placeholder
     if (!selectedDate || !selectedSlotId) {
         return (
-            <div className={styles.sidebar}>
+            <div id="booking-sidebar" className={styles.sidebar}>
                 <h3 className={styles.sectionTitle}>Booking Details</h3>
                 <div className={styles.placeholder}>
                     <span className={styles.placeholderIcon}>👈</span> Select a time slot to proceed.
@@ -88,7 +94,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
     }
 
     return (
-        <div className={styles.sidebar}>
+        <div id="booking-sidebar" className={styles.sidebar}>
             <div className={styles.header}>
                 <h3 className={styles.sectionTitle}>
                     {step === 'summary' ? 'Booking Summary' : 'Enter Details'}
@@ -127,6 +133,8 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
             {/* Step 2: User Details Form */}
             {step === 'details' && (
                 <div className={styles.formContainer}>
+                    {/* ... (Existing input fields) ... */}
+
                     <div className={styles.formGroup}>
                         <label className={styles.label}>Emp Email ID</label>
                         <input
@@ -199,6 +207,8 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
                             <option value="Oral Viva">Oral Viva</option>
                         </select>
                     </div>
+
+                    {/* VTOP Checkbox removed as per request */}
 
                     <div className={styles.actions}>
                         <Button
