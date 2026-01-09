@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clock, Video, MapPin, ExternalLink } from 'lucide-react';
 import styles from './BookingCard.module.css';
 import Button from '../UI/Button';
 
@@ -7,10 +8,9 @@ interface BookingCardProps {
     title: string;
     date: { month: string; day: string };
     time: string;
-    location: string;
     isOnline?: boolean;
     student: { name: string; regNo: string; avatar?: string };
-    status: 'upcoming' | 'completed' | 'cancelled';
+    status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'pending';
     onCancel?: (id: string) => void;
 }
 
@@ -19,7 +19,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
     title,
     date,
     time,
-    location,
     isOnline,
     student,
     status,
@@ -27,25 +26,19 @@ const BookingCard: React.FC<BookingCardProps> = ({
 }) => {
     return (
         <div className={styles.card}>
-            <div className={styles.dateBox}>
-                <div className={styles.month}>{date.month}</div>
-                <div className={styles.day}>{date.day}</div>
-            </div>
-
-            <div className={styles.content}>
-                <div className={styles.header}>
-                    <h3 className={styles.title}>{title}</h3>
+            {/* Col 1: infoGroup (Date + Details) */}
+            <div className={styles.infoGroup}>
+                <div className={styles.dateBox}>
+                    <div className={styles.month}>{date.month}</div>
+                    <div className={styles.day}>{date.day}</div>
                 </div>
 
-                <div className={styles.details}>
-                    <div className={styles.detailRow}>
-                        <span className={styles.icon}>🕒</span>
+                <div className={styles.content}>
+                    <h3 className={styles.title}>{title}</h3>
+                    <div className={styles.details}>
+                        <Clock size={16} className={styles.icon} />
                         <span>{time}</span>
-                        <span className={styles.dot}>•</span>
-                        <span className={styles.icon}>{isOnline ? '📹' : '📍'}</span>
-                        <span className={isOnline ? styles.online : ''}>{location}</span>
                     </div>
-
                     <div className={styles.studentInfo}>
                         <div className={styles.avatar}>
                             <img src={`https://ui-avatars.com/api/?name=${student.name}&background=random`} alt={student.name} />
@@ -56,8 +49,30 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 </div>
             </div>
 
-            <div className={styles.actions}>
-                {status === 'upcoming' && onCancel && (
+            {/* Col 2: statusGroup (Middle) */}
+            <div className={styles.statusGroup}>
+                {['upcoming', 'pending'].includes(status) && (
+                    <span className={styles.pendingBadge}>Waiting for Dean's Confirmation...</span>
+                )}
+
+                {status === 'confirmed' && (
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                            if (window.confirm("You are being redirected to VTOP to complete the booking. Continue?")) {
+                                window.open('https://vtop.vit.ac.in', '_blank');
+                            }
+                        }}
+                    >
+                        Go to VTOP <ExternalLink size={14} style={{ marginLeft: '4px' }} />
+                    </Button>
+                )}
+            </div>
+
+            {/* Col 3: actionGroup (Right - Cancel) */}
+            <div className={styles.actionGroup}>
+                {(status === 'upcoming' || status === 'confirmed') && onCancel && (
                     <button
                         className={styles.cancelLink}
                         onClick={() => onCancel(id)}
@@ -65,25 +80,12 @@ const BookingCard: React.FC<BookingCardProps> = ({
                         Cancel
                     </button>
                 )}
-
-                {isOnline && status === 'upcoming' ? (
-                    <Button variant="primary" size="sm">
-                        Join Meeting 📹
-                    </Button>
-                ) : (
-                    <Button
-                        variant={status === 'cancelled' ? 'secondary' : 'primary'}
-                        size="sm"
-                        disabled={status === 'cancelled'}
-                        onClick={() => {
-                            window.open('https://vtop.vit.ac.in', '_blank');
-                        }}
-                    >
-                        Book on VTOP →
-                    </Button>
+                {/* Join Meeting button hidden as mainly offline focus, or user said "cancel button is lost" */}
+                {isOnline && status === 'upcoming' && (
+                    <Button variant="primary" size="sm">Join</Button>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

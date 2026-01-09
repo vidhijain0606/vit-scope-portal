@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Check, Clock } from 'lucide-react';
 import styles from './SlotGrid.module.css';
 import { supabase } from '@/utils/supabase';
 
@@ -103,9 +104,9 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
                                         <div className={styles.topRow}>
                                             <span className={styles.time}>{slot.startTime}</span>
                                             {selectedSlotId === slot.id ? (
-                                                <span className={styles.checkIcon}>✓</span>
+                                                <Check size={16} className={styles.checkIcon} />
                                             ) : (
-                                                <span className={styles.clockIcon}>🕒</span>
+                                                <Clock size={16} className={styles.clockIcon} />
                                             )}
                                         </div>
                                         <div className={styles.bottomRow}>

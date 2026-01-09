@@ -41,9 +41,7 @@ export default function LoginPage() {
           </div>
           <span className={styles.logoText}>VIT SCOPE</span>
         </div>
-        <Link href="/help" className={styles.helpLink}>
-          Help & Support
-        </Link>
+
       </header>
 
       <main className={styles.main}>
@@ -109,7 +107,7 @@ export default function LoginPage() {
           <Link href="#">Terms of Service</Link>
           <Link href="#">Faculty Guidelines</Link>
         </div>
-        <div className={styles.copyright}>© 2024 VIT SCOPE. All rights reserved.</div>
+        <div className={styles.copyright}>© 2026 VIT SCOPE. All rights reserved.</div>
       </footer>
     </div>
   );

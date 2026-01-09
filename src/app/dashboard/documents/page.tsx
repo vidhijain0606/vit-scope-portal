@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/utils/supabase';
+import { FileText, Download } from 'lucide-react';
 
 // Shared styles can be reused or we can create new ones.
 // For simplicity, let's use inline/utility classes or a new module.
@@ -40,7 +41,7 @@ export default function FacultyDocumentsPage() {
                     documents.map(doc => (
                         <div key={doc.id} className={styles.card}>
                             <div className={styles.iconWrapper}>
-                                <span className={styles.icon}>📄</span>
+                                <FileText size={32} color="#0d6efd" className={styles.icon} />
                             </div>
                             <div className={styles.content}>
                                 <h3 className={styles.docTitle}>{doc.title}</h3>
@@ -56,7 +57,8 @@ export default function FacultyDocumentsPage() {
                                     rel="noopener noreferrer"
                                     className={styles.downloadBtn}
                                 >
-                                    Download / View ↗
+                                    <Download size={18} style={{ marginRight: '8px' }} />
+                                    Download / View
                                 </a>
                             </div>
                         </div>

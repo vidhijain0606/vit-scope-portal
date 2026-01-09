@@ -2,6 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, Clock, FileUp, Calendar, FileDown } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
@@ -37,15 +38,15 @@ const Sidebar = () => {
                 {pathname.startsWith('/admin') && (
                     <>
                         <Link href="/admin/dashboard" className={`${styles.navItem} ${isActive('/admin/dashboard')}`}>
-                            <span className={styles.icon}>📊</span>
+                            <LayoutDashboard size={20} className={styles.icon} />
                             Dashboard
                         </Link>
                         <Link href="/admin/add-slots" className={`${styles.navItem} ${isActive('/admin/add-slots')}`}>
-                            <span className={styles.icon}>🕒</span>
+                            <Clock size={20} className={styles.icon} />
                             Add Slots
                         </Link>
                         <Link href="/admin/documents" className={`${styles.navItem} ${isActive('/admin/documents')}`}>
-                            <span className={styles.icon}>📁</span>
+                            <FileUp size={20} className={styles.icon} />
                             Documents (Upload)
                         </Link>
                     </>
@@ -55,11 +56,11 @@ const Sidebar = () => {
                 {pathname.startsWith('/dashboard') && (
                     <>
                         <Link href="/dashboard" className={`${styles.navItem} ${isActive('/dashboard')}`}>
-                            <span className={styles.icon}>📅</span>
+                            <Calendar size={20} className={styles.icon} />
                             My Schedule
                         </Link>
                         <Link href="/dashboard/documents" className={`${styles.navItem} ${isActive('/dashboard/documents')}`}>
-                            <span className={styles.icon}>📥</span>
+                            <FileDown size={20} className={styles.icon} />
                             Documents
                         </Link>
                     </>

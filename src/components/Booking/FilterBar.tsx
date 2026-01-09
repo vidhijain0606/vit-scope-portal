@@ -1,4 +1,5 @@
 import React from 'react';
+import { Calendar, User, FlaskConical, ChevronDown } from 'lucide-react';
 import styles from './FilterBar.module.css';
 
 const FilterBar = () => {
@@ -8,21 +9,21 @@ const FilterBar = () => {
 
             <div className={styles.filterGroup}>
                 <div className={styles.dropdown}>
-                    <span className={styles.icon}>📅</span>
+                    <Calendar size={16} className={styles.icon} />
                     <span>Date Range</span>
-                    <span className={styles.arrow}>▼</span>
+                    <ChevronDown size={14} className={styles.arrow} />
                 </div>
 
                 <div className={styles.dropdown}>
-                    <span className={styles.icon}>👤</span>
+                    <User size={16} className={styles.icon} />
                     <span>Faculty Member</span>
-                    <span className={styles.arrow}>▼</span>
+                    <ChevronDown size={14} className={styles.arrow} />
                 </div>
 
                 <div className={styles.dropdown}>
-                    <span className={styles.icon}>⚗️</span>
+                    <FlaskConical size={16} className={styles.icon} />
                     <span>Research Area</span>
-                    <span className={styles.arrow}>▼</span>
+                    <ChevronDown size={14} className={styles.arrow} />
                 </div>
             </div>
         </div>

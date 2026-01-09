@@ -1,64 +1,81 @@
 .card {
-    display: flex;
+    display: grid;
+    /* Adjusted Columns: Info (Wide) | Status (Wide) | Action (Compact) */
+    grid-template-columns: 1.5fr 1.5fr 100px;
+    gap: 1.5rem;
+
     background-color: var(--bg-white);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
+    border-radius: 12px;
     padding: 1.5rem;
     margin-bottom: 1rem;
-    align-items: center;
-    transition: box-shadow 0.2s;
+    align-items: stretch;
+    transition: all 0.2s;
 }
 
 .card:hover {
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-color: #e5e7eb;
+}
+
+/* --- Col 1: Info Group --- */
+.infoGroup {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    background-color: #fff;
+    height: 100%;
 }
 
 .dateBox {
-    background-color: #f8f9fa;
-    border-radius: var(--border-radius-sm);
-    padding: 0.75rem 1rem;
-    text-align: center;
-    margin-right: 1.5rem;
+    background-color: #f3f4f6;
+    border-radius: 12px;
+    padding: 0;
+    width: 80px;
+    height: 80px;
     min-width: 80px;
+    min-height: 80px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    flex-shrink: 0;
 }
 
 .month {
     color: var(--primary-color);
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     text-transform: uppercase;
-    margin-bottom: 0.25rem;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 4px;
 }
 
 .day {
     font-size: 1.5rem;
     font-weight: 800;
-    color: #000;
+    color: #1f2937;
     line-height: 1;
 }
 
 .content {
-    flex: 1;
-}
-
-.header {
-    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
 }
 
 .title {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    margin: 0;
 }
 
 .details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.detailRow {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -66,33 +83,25 @@
     font-size: 0.9rem;
 }
 
-.dot {
-    color: #dee2e6;
-}
-
-.online {
-    color: #fd7e14;
-    /* Orange for online meeting */
-    font-weight: 600;
-}
-
 .studentInfo {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-top: 0.25rem;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .avatar {
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     overflow: hidden;
+    background: #e5e7eb;
 }
 
 .avatar img {
     width: 100%;
     height: 100%;
+    object-fit: cover;
 }
 
 .studentName {
@@ -102,29 +111,124 @@
 }
 
 .regNo {
-    background-color: #f1f3f5;
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.cancelLink {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    background-color: #f3f4f6;
+    padding: 0.15rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    color: #6b7280;
     font-weight: 500;
-    text-decoration: underline;
+}
+
+/* --- Col 2: Status Group --- */
+.statusGroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Alerts: Rectangular (Fill width of column, auto height) */
+.warningAlert {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    padding: 1rem;
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.alertBox {
+    width: 100%;
+    padding: 1rem;
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    color: #065f46;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+}
+
+.alertContent strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #047857;
+    font-size: 1rem;
+}
+
+.alertContent p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #064e3b;
+    line-height: 1.4;
+    max-width: 100%;
+}
+
+/* --- Col 3: Action Group --- */
+.actionGroup {
+    display: flex;
+    justify-content: flex-end;
+    /* Align to right */
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Cancel Link: Square, but contained in a small column */
+.cancelLink {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #fff;
+    border: 1px solid #fee2e2;
+    color: #ef4444;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .cancelLink:hover {
-    color: var(--danger-color);
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
+    text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .card {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .warningAlert,
+    .alertBox,
+    .cancelLink {
+        aspect-ratio: auto;
+        padding: 1rem;
+        width: 100%;
+    }
 }

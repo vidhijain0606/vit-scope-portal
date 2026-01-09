@@ -25,6 +25,10 @@ export default function BookingView() {
         if (!selectedSlotId) return;
 
         try {
+            // Get current user for ID linkage
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error('You must be logged in to book.');
+
             // 1. Fetch slot details to get accurate time
             const { data: slotData, error: slotFetchError } = await supabase
                 .from('slots')
@@ -42,7 +46,7 @@ export default function BookingView() {
                     start_time: slotData.start_time,
                     end_time: slotData.end_time,
                     location: 'TBD',
-                    status: 'upcoming',
+                    status: 'pending',
 
                     // New Fields
                     emp_id: details.empId,
@@ -50,10 +54,9 @@ export default function BookingView() {
                     scholar_id: details.scholarId,
                     scholar_name: details.scholarName,
                     meeting_type: details.meetingType,
-                    // We need to make sure 'email' column exists too!
-                    // Assuming we might need to add it to schema or store it in student_email?
-                    // For now let's just add it as a new field 'emp_email' assuming schema update
-                    emp_email: details.email,
+
+                    // Link to User
+                    emp_email: details.email?.toLowerCase(),
 
                     // Fallback storage in old fields just in case
                     student_name: details.scholarName,
@@ -92,8 +95,8 @@ export default function BookingView() {
                     }}
                 />
             )}
-            <h1 className={styles.pageTitle}>Book a Research Consultation</h1>
-            <p className={styles.pageSubtitle}>Select an available time slot below to schedule your meeting with a faculty member.</p>
+            <h1 className={styles.pageTitle}>Book a DAC Meeting</h1>
+            <p className={styles.pageSubtitle}>Select an available time slot below to schedule your meeting.</p>
 
             {/* Filter removed as per request */}
 

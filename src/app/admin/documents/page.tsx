@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 import { supabase } from '@/utils/supabase';
 import Button from '@/components/UI/Button';
+import { FileText, Trash2, ExternalLink } from 'lucide-react';
 
 export default function AdminDocumentsPage() {
     const [documents, setDocuments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [file, setFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
-    const [url, setUrl] = useState('');
     const [description, setDescription] = useState('');
     const [submitting, setSubmitting] = useState(false);
 
@@ -27,28 +28,72 @@ export default function AdminDocumentsPage() {
         setLoading(false);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setFile(e.target.files[0]);
+        }
+    };
+
     const handleAddDocument = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!file || !title) {
+            alert('Please select a file and enter a title.');
+            return;
+        }
+
         setSubmitting(true);
 
-        const { error } = await supabase.from('documents').insert([
-            { title, file_url: url, description }
-        ]);
+        try {
+            // 1. Upload file to Supabase Storage
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${title.replace(/\s+/g, '_')}.${fileExt}`;
+            const filePath = `${fileName}`;
 
-        if (error) {
-            alert('Error adding document: ' + error.message);
-        } else {
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('documents')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // 2. Get Public URL
+            const { data: { publicUrl } } = supabase.storage
+                .from('documents')
+                .getPublicUrl(filePath);
+
+            // 3. Save metadata to Database
+            const { error: dbError } = await supabase.from('documents').insert([
+                {
+                    title,
+                    file_url: publicUrl,
+                    description
+                }
+            ]);
+
+            if (dbError) throw dbError;
+
+            // Success cleanup
             setTitle('');
-            setUrl('');
+            setFile(null);
             setDescription('');
+            // Reset file input manually if needed, or rely on state key
+            const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+
             fetchDocuments();
+
+        } catch (error: any) {
+            console.error('Upload error:', error);
+            alert('Error adding document: ' + (error.message || 'Unknown error'));
+        } finally {
+            setSubmitting(false);
         }
-        setSubmitting(false);
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this document?')) return;
 
+        // Ideally navigate to find the file path to delete from storage too, 
+        // but for now we just delete the record.
         const { error } = await supabase.from('documents').delete().eq('id', id);
         if (!error) {
             setDocuments(prev => prev.filter(d => d.id !== id));
@@ -65,7 +110,7 @@ export default function AdminDocumentsPage() {
             <div className={styles.content}>
                 {/* Upload Form */}
                 <div className={styles.uploadCard}>
-                    <h2 className={styles.cardTitle}>Add New Document Link</h2>
+                    <h2 className={styles.cardTitle}>Upload New Document</h2>
                     <form onSubmit={handleAddDocument} className={styles.form}>
                         <div className={styles.formGroup}>
                             <label>Document Title</label>
@@ -78,13 +123,13 @@ export default function AdminDocumentsPage() {
                             />
                         </div>
                         <div className={styles.formGroup}>
-                            <label>Document URL</label>
+                            <label>Select File</label>
                             <input
-                                type="url"
-                                value={url}
-                                onChange={e => setUrl(e.target.value)}
-                                placeholder="https://drive.google.com/..."
+                                id="fileInput"
+                                type="file"
+                                onChange={handleFileChange}
                                 required
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
                             />
                         </div>
                         <div className={styles.formGroup}>
@@ -96,7 +141,7 @@ export default function AdminDocumentsPage() {
                             />
                         </div>
                         <Button variant="primary" type="submit" disabled={submitting}>
-                            {submitting ? 'Adding...' : 'Add Document'}
+                            {submitting ? 'Uploading...' : 'Upload Document'}
                         </Button>
                     </form>
                 </div>
@@ -112,16 +157,18 @@ export default function AdminDocumentsPage() {
                         <div className={styles.grid}>
                             {documents.map(doc => (
                                 <div key={doc.id} className={styles.docCard}>
-                                    <div className={styles.docIcon}>📄</div>
+                                    <div className={styles.docIcon}>
+                                        <FileText size={24} color="#0d6efd" />
+                                    </div>
                                     <div className={styles.docContent}>
                                         <h3 className={styles.docTitle}>{doc.title}</h3>
                                         <p className={styles.docDesc}>{doc.description || 'No description provided.'}</p>
                                         <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className={styles.docLink}>
-                                            Open Link ↗
+                                            Open Link <ExternalLink size={14} style={{ marginLeft: '4px' }} />
                                         </a>
                                     </div>
                                     <button className={styles.deleteBtn} onClick={() => handleDelete(doc.id)} title="Delete">
-                                        🗑️
+                                        <Trash2 size={18} />
                                     </button>
                                 </div>
                             ))}

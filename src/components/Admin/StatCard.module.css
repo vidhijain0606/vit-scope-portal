@@ -1,12 +1,18 @@
 .card {
     background-color: var(--bg-white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-md);
+    border-radius: 12px;
     padding: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f0f0f0;
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
 }
 
 .content {
@@ -15,48 +21,48 @@
 }
 
 .title {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-weight: 500;
     margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
 }
 
 .value {
     font-size: 2rem;
-    font-weight: 800;
-    color: var(--text-primary);
+    font-weight: 700;
+    color: #111827;
     line-height: 1;
     margin-bottom: 0.5rem;
 }
 
 .trend {
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
 }
 
 .iconBox {
+    min-width: 48px;
     width: 48px;
     height: 48px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.15;
-    /* Background tint of the color */
-}
-
-/* We need to overlay the icon color on top, so let's adjust logic.
-   Actually simpler: style the text color to be the color passed, and bg is white/light.
-   Or use the passed color as bg with low opacity.
-*/
-.iconBox {
     position: relative;
+    background-color: #f3f4f6;
+    /* Opacity issue fixed by removing opacity and using solid bg or just using the icon color */
 }
 
 .icon {
     font-size: 1.5rem;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    /* Trick to show icon color properly - actually let's just use emojis or svgs in the box */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
 }

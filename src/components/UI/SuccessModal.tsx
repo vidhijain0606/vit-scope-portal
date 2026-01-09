@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { CheckCircle, ExternalLink } from 'lucide-react';
 
 interface SuccessModalProps {
     onClose: () => void;
@@ -31,47 +32,30 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ onClose, onVtop }) => {
                 boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
                 animation: 'slideIn 0.3s ease-out'
             }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+                <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center' }}>
+                    <CheckCircle size={64} color="#198754" />
+                </div>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1a1a1a' }}>Slot Booked Successfully!</h2>
                 <p style={{ color: '#666', marginBottom: '2rem', lineHeight: '1.5' }}>
-                    Your research consultation slot has been confirmed on the portal.
-                    Would you like to open <strong>VTOP</strong> now?
+                    PLEASE WAIT FOR ASSOCIATE DEAN TO APPROVE THE SLOT !
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
-                    <button
-                        onClick={onVtop}
-                        style={{
-                            padding: '0.75rem',
-                            backgroundColor: '#3498db',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontWeight: '600',
-                            fontSize: '1rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px'
-                        }}
-                    >
-                        Yes, Go to VTOP ↗
-                    </button>
+                    {/* VTOP button removed as it's pending approval */}
                     <button
                         onClick={onClose}
                         style={{
                             padding: '0.75rem',
-                            backgroundColor: 'white',
-                            color: '#666',
-                            border: '1px solid #ddd',
+                            backgroundColor: '#0d6efd',
+                            color: 'white',
+                            border: 'none',
                             borderRadius: '6px',
                             fontWeight: '600',
                             fontSize: '1rem',
                             cursor: 'pointer'
                         }}
                     >
-                        No, Back to Dashboard
+                        Go back to dashboard !
                     </button>
                 </div>
             </div>

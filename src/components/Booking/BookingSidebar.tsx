@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ArrowLeftCircle } from 'lucide-react';
 import styles from './BookingSidebar.module.css';
 import Button from '../UI/Button';
 
@@ -31,7 +32,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
         scholarId: '',
         scholarName: '',
         email: '',
-        meetingType: 'Synopsis'
+        meetingType: ''
     });
 
     // ... (useEffect for user fetch same as before)
@@ -56,7 +57,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
         setVtopChecked(false); // Reset checkbox
         setFormData(prev => ({
             ...prev,
-            meetingType: 'Synopsis'
+            meetingType: ''
         }));
 
         // Scroll to sidebar on mobile/smaller screens if needed, or just focus
@@ -76,6 +77,22 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
     };
 
     const handleFinalSubmit = () => {
+        if (!selectedTime) return;
+
+        // Validation Logic
+        const restrictedTypes = ['SYNOPSIS MEETING', 'ORAL EXAM'];
+        const allowedStartTimes = ['11:30', '14:30', '16:00'];
+
+        // Extract start time from "HH:mm - HH:mm"
+        const startTime = selectedTime.split(' - ')[0]?.trim();
+
+        if (restrictedTypes.includes(formData.meetingType)) {
+            if (!allowedStartTimes.includes(startTime)) {
+                alert(`⚠️ Restriction: ${formData.meetingType} can ONLY be booked at 11:30, 14:30, or 16:00.\n\nCurrent Time Selected: ${startTime}`);
+                return;
+            }
+        }
+
         if (formData.empId && formData.empName && formData.scholarId && formData.scholarName && formData.email) {
             onConfirm(formData);
         }
@@ -87,7 +104,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
             <div id="booking-sidebar" className={styles.sidebar}>
                 <h3 className={styles.sectionTitle}>Booking Details</h3>
                 <div className={styles.placeholder}>
-                    <span className={styles.placeholderIcon}>👈</span> Select a time slot to proceed.
+                    <ArrowLeftCircle size={24} className={styles.placeholderIcon} /> Select a time slot to proceed.
                 </div>
             </div>
         );
@@ -201,14 +218,17 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
                             value={formData.meetingType}
                             onChange={handleInputChange}
                         >
-                            <option value="Synopsis">Synopsis</option>
-                            <option value="DC Meeting 1">DC Meeting 1</option>
-                            <option value="DC Meeting 2">DC Meeting 2</option>
-                            <option value="Oral Viva">Oral Viva</option>
+                            <option value="" disabled>-- Select Meeting Type --</option>
+                            <option value="DC MEETING">DC MEETING</option>
+                            <option value="COMPREHENSIVE VIVA">COMPREHENSIVE VIVA</option>
+                            <option value="COLLOQUIUM">COLLOQUIUM</option>
+                            <option value="SYNOPSIS MEETING">SYNOPSIS MEETING</option>
+                            <option value="ORAL EXAM">ORAL EXAM</option>
                         </select>
+                        <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>
+                            Note: SYNOPSIS & ORAL EXAM only at 11:30, 14:30, 16:00
+                        </p>
                     </div>
-
-                    {/* VTOP Checkbox removed as per request */}
 
                     <div className={styles.actions}>
                         <Button
@@ -221,7 +241,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
                         <Button
                             variant="primary"
                             className={styles.submitBtn}
-                            disabled={!formData.empId || !formData.empName || !formData.scholarId || !formData.scholarName}
+                            disabled={!formData.empId || !formData.empName || !formData.scholarId || !formData.scholarName || !formData.meetingType}
                             onClick={handleFinalSubmit}
                         >
                             Confirm & Book

@@ -5,7 +5,7 @@ interface StatCardProps {
     title: string;
     value: string | number;
     trend?: string;
-    icon: string;
+    icon: React.ReactNode;
     color: string;
 }
 
@@ -18,7 +18,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, trend, icon, color })
                 {trend && <div className={styles.trend} style={{ color: '#198754' }}>{trend}</div>}
             </div>
             <div className={styles.iconBox} style={{ backgroundColor: color }}>
-                <span className={styles.icon}>{icon}</span>
+                <div className={styles.icon}>{icon}</div>
             </div>
         </div>
     );
