@@ -73,6 +73,9 @@ const Navbar = () => {
                     <Link href="/book-slot" className={`${styles.navLink} ${isActive('/book-slot')}`}>
                         Book Slot
                     </Link>
+                    <Link href="/dashboard/documents" className={`${styles.navLink} ${isActive('/dashboard/documents')}`}>
+                        Documents
+                    </Link>
                 </div>
 
                 <div className={styles.userActions}>
