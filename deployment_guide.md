@@ -24,75 +24,25 @@ Create a `.env.local` file in the root directory. You must update these values w
 # Database / Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL="YOUR_SUPABASE_OR_API_URL"
 NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_PUBLIC_ANON_KEY"
-SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY" # If used for admin tasks
-
-# Email Configuration (If using SMTP)
-SMTP_HOST="smtp.office365.com"
-SMTP_PORT=587
-SMTP_USER="your.email@vit.ac.in"
-SMTP_PASS="your_password_here"
+# SUPABASE_SERVICE_ROLE_KEY="YOUR_SERVICE_ROLE_KEY" # Optional: Only if used for backend admin tasks
 ```
 
 > **IMPORTANT**: 
-> - **Change Passwords**: Ensure the `SMTP_PASS` and any database passwords in connection strings are updated immediately.
+> - **Change Passwords**: Ensure any database passwords in connection strings are updated immediately.
 > - **Database URL**: If connecting directly to Postgres, ensure the connection string is correct.
 
 ## 4. Database Setup (SQL Schema)
-Run the following SQL commands in your PostgreSQL database to set up the required tables.
+**Do not manually create tables.** We have provided a master setup script.
 
-```sql
--- 1. Enable UUID extension
-create extension if not exists "uuid-ossp";
+1.  Locate the file **`supabase_setup.sql`** in the root directory of this project.
+2.  Copy its entire content.
+3.  Run the SQL in your database (via Supabase SQL Editor or pgAdmin).
 
--- 2. Create Users Table (or link with Auth)
-create table public.users (
-  id uuid references auth.users not null primary key,
-  email text unique,
-  full_name text,
-  role text check (role in ('admin', 'faculty', 'student')),
-  created_at timestamp with time zone default timezone('utc'::text, now())
-);
-
--- 3. Create Slots Table
-create table public.slots (
-  id uuid default uuid_generate_v4() primary key,
-  date date not null,
-  start_time time not null,
-  end_time time not null,
-  is_available boolean default true,
-  created_at timestamp with time zone default timezone('utc'::text, now())
-);
-
--- 4. Create Bookings Table
-create table public.bookings (
-  id uuid default uuid_generate_v4() primary key,
-  slot_id uuid references public.slots,
-  student_id uuid, -- Link to user who booked (Faculty in this context)
-  student_name text,
-  student_reg_no text, -- Scholar ID
-  scholar_name text,
-  emp_name text, -- Faculty Name
-  emp_id text,
-  status text default 'pending', -- pending, confirmed, cancelled
-  meeting_type text, -- Research Meeting, DAC Meetings
-  created_at timestamp with time zone default timezone('utc'::text, now())
-);
-
--- 5. Create Documents Table
-create table public.documents (
-  id uuid default uuid_generate_v4() primary key,
-  title text not null,
-  description text,
-  file_url text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now())
-);
-
--- 6. Important Policies (Row Level Security)
-alter table public.bookings enable row level security;
-alter table public.documents enable row level security;
--- Add policies as per requirement (e.g., enable read for all authenticated users)
-create policy "Public read documents" on public.documents for select using (true);
-```
+**This script will automatically:**
+-   Create required tables: `users`, `slots` (30-min intervals supported), `bookings`, `documents`.
+-   Enable Row Level Security (RLS).
+-   Create necessary User Policies (allowing "Public" uploads for simulated Admins).
+-   Create and configure the `documents` Storage Bucket.
 
 ## 5. Deployment
 To run the application in production mode:
@@ -104,25 +54,20 @@ npm start
 
 The application will typically start on port 3000 (e.g., `http://localhost:3000`).
 
-## 6. List of Changes for Transfer
-Review these files to customize branding or hardcoded values:
-
-1.  **`src/app/layout.tsx`**: Update title and metadata.
-2.  **`src/components/Layout/Sidebar.tsx`**: Update logo or menu items if needed.
-3.  **`src/components/UI`**: Check for any hardcoded colors in CSS modules if not using global variables.
-4.  **`src/utils/supabase.ts`**: Ensure the client initialization matches your new environment.
+## 6. Key Features Included in this Build
+-   **30-Minute Slots**: The system now supports half-hour booking slots (e.g., 10:00, 10:30).
+-   **Documents Module**: Full upload/download capability for research circulars.
+-   **Validation**: Restricted meeting types (Synopsis/Oral Exam) blocked at unauthorized times.
+-   **Simulated Admin**: Login system specifically configured for internal use without external auth dependencies.
 
 ## 7. Changing Credentials
 -   **Database Access**: Update `NEXT_PUBLIC_SUPABASE_URL` and keys in `.env.local`.
--   **Admin Access**: If you have hardcoded admin emails in `src/components/Auth/AdminGuard.tsx` (e.g., `if (user.email === 'admin@vit.ac.in')`), update them to the new admin's email.
-
-```typescript
-// Example in AdminGuard.tsx
-const ADMIN_EMAILS = ['new.admin@vit.ac.in', 'dean.scope@vit.ac.in'];
-```
+-   **Admin Access**:
+    -   The current Admin Login is simulated in `src/app/admin-login/page.tsx` (Default: `admin` / `admin123`).
+    -   To change this, edit the `handleLogin` function in that file directly.
 
 ## 8. Access Control & Security
-The portal now enforces strict domain access (`@vit.ac.in`).
+The portal now enforces strict domain access (`@vit.ac.in`) for Google Logins.
 
 ### Enabling Restricted Allowlist
 To restrict access to a specific list of Faculty emails (as per the "CSV feature" request):
