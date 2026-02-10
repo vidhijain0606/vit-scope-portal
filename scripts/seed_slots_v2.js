@@ -1,9 +1,39 @@
 
 const { createClient } = require('@supabase/supabase-js');
 
-// Hardcoded for immediate execution as per previous tool output
-const supabaseUrl = 'https://oqgbgfaxsgitfkclrsoy.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9xZ2JnZmF4c2dpdGZrY2xyc295Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjczMTg3MzgsImV4cCI6MjA4Mjg5NDczOH0.OZM4OmnmkqY1LGKhjCa5Y_XV898xQXIho3_NN-9tZDk';
+const fs = require('fs');
+const path = require('path');
+
+const envPath = path.resolve(__dirname, '../.env.local');
+let envContent;
+
+try {
+    envContent = fs.readFileSync(envPath, 'utf16le');
+} catch (e) {
+    try {
+        envContent = fs.readFileSync(envPath, 'utf8');
+    } catch (e2) {
+        console.error('Failed to read .env.local');
+        process.exit(1);
+    }
+}
+
+const envConfig = {};
+envContent.split(/\r?\n/).forEach(line => {
+    if (line.trim().startsWith('#')) return;
+    const match = line.match(/^([^=]+)=(.*)$/);
+    if (match) {
+        let key = match[1].trim();
+        let value = match[2].trim();
+        if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+            value = value.slice(1, -1);
+        }
+        envConfig[key] = value;
+    }
+});
+
+const supabaseUrl = envConfig.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = envConfig.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

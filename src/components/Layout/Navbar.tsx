@@ -29,7 +29,7 @@ const Navbar = () => {
                 if (picture) {
                     setAvatarUrl(picture);
                 } else {
-                    setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff`);
+                    setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=128`);
                 }
             }
         };
@@ -61,6 +61,7 @@ const Navbar = () => {
                             width={32}
                             height={32}
                             className={styles.logoImage}
+                            unoptimized
                         />
                     </div>
                     <span className={styles.brandName}>VIT SCOPE RESEARCH PORTAL</span>
