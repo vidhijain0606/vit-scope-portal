@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Trash2 } from 'lucide-react'; // Added Trash2
 import styles from './AdminTable.module.css';
 
 import { supabase } from '@/utils/supabase';
@@ -7,25 +7,32 @@ import { supabase } from '@/utils/supabase';
 const AdminTable = () => {
     const [rows, setRows] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
-    const [sortConfig, setSortConfig] = React.useState<{ key: string, direction: 'asc' | 'desc' }>({ key: 'status_pending', direction: 'asc' });
+    // Changed default to date/desc (Latest First)
+    const [sortConfig, setSortConfig] = React.useState<{ key: string, direction: 'asc' | 'desc' }>({ key: 'date', direction: 'desc' });
 
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            const { data, error } = await supabase.from('bookings').select('*');
+            // Added server-side sort as well (Latest First)
+            const { data, error } = await supabase
+                .from('bookings')
+                .select('*')
+                .order('date', { ascending: false })
+                .order('start_time', { ascending: true });
 
             if (data && !error) {
                 setRows(data.map(b => ({
                     id: b.id,
                     name: b.scholar_name || b.student_name || 'Scholar',
-                    course: 'N/A',
+                    course: b.title || 'N/A', // Using title as Course/Meeting Type since 'course' was hardcoded N/A
+                    meetingType: b.title || 'Meeting', // Explicit Meeting Type
                     regNo: b.scholar_id || b.student_reg_no || 'N/A',
                     faculty: b.emp_name || 'Dr. Faculty',
                     date: new Date(b.date).toLocaleDateString(),
-                    rawDate: b.date, // Store raw date for sorting
+                    rawDate: b.date,
                     time: b.start_time,
                     status: (b.status || 'pending').charAt(0).toUpperCase() + (b.status || 'pending').slice(1),
-                    createdAt: b.created_at // Store created_at for sorting
+                    createdAt: b.created_at
                 })));
             }
             setLoading(false);
@@ -60,13 +67,42 @@ const AdminTable = () => {
         if (value === 'created_asc') setSortConfig({ key: 'created', direction: 'asc' });
     };
 
+    const handleDeleteBooking = async (id: string) => {
+        if (!confirm('⚠️ Are you sure you want to PERMANENTLY DELETE this booking record?')) return;
+
+        const { error } = await supabase.from('bookings').delete().eq('id', id);
+
+        if (!error) {
+            setRows(prev => prev.filter(row => row.id !== id));
+            // Optional: We could also try to free the slot here, but usually a hard delete implies cleanup.
+            // If the user wants to free the slot, they should normally use "Cancel". 
+            // This Delete is for cleaning up bad data.
+        } else {
+            console.error('Error deleting booking:', error);
+            alert('Failed to delete booking');
+        }
+    };
+
     const getSortedRows = () => {
         const sorted = [...rows];
         sorted.sort((a, b) => {
             if (sortConfig.key === 'date') {
-                const dateA = new Date(a.rawDate + 'T' + a.time);
-                const dateB = new Date(b.rawDate + 'T' + b.time);
-                return sortConfig.direction === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
+                // Use string comparison on YYYY-MM-DD which is lexically sortable.
+                // This avoids invalid Date parsing issues with time formats like "09:00 AM".
+                const dateA = a.rawDate || '';
+                const dateB = b.rawDate || '';
+                const dateCompare = dateA.localeCompare(dateB);
+
+                if (dateCompare !== 0) {
+                    return sortConfig.direction === 'asc' ? dateCompare : -dateCompare;
+                }
+
+                // If dates are equal, fallback to simple string sort for time (best effort without strict parsing)
+                const timeA = a.time || '';
+                const timeB = b.time || '';
+                return sortConfig.direction === 'asc'
+                    ? timeA.localeCompare(timeB)
+                    : timeB.localeCompare(timeA);
             }
             if (sortConfig.key === 'status_pending') {
                 const getScore = (s: string) => s.toLowerCase() === 'pending' ? 0 : 1;
@@ -81,7 +117,7 @@ const AdminTable = () => {
                 return getScore(a.status) - getScore(b.status);
             }
             if (sortConfig.key === 'created') {
-                const dateA = new Date(a.createdAt || 0); // Fallback to 0 if null
+                const dateA = new Date(a.createdAt || 0);
                 const dateB = new Date(b.createdAt || 0);
                 return sortConfig.direction === 'asc' ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime();
             }
@@ -94,23 +130,24 @@ const AdminTable = () => {
         if (rows.length === 0) return;
 
         // 1. Define CSV headers
-        const headers = ['ID', 'Scholar Name', 'Reg No', 'Faculty Name', 'Date', 'Time', 'Status'];
+        const headers = ['ID', 'Scholar Name', 'Reg No', 'Faculty Name', 'Meeting Type', 'Date', 'Time', 'Status'];
 
         // 2. Format rows into CSV string
         const csvContent = [
             headers.join(','),
             ...getSortedRows().map(row => [
                 row.id,
-                `"${row.name}"`, // Quote strings to handle commas
+                `"${row.name}"`,
                 row.regNo,
                 `"${row.faculty}"`,
+                `"${row.meetingType}"`,
                 row.date,
                 row.time,
                 row.status
             ].join(','))
         ].join('\n');
 
-        // 3. Create a blob and trigger download
+        // ... (keep download logic)
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -125,12 +162,13 @@ const AdminTable = () => {
 
     return (
         <div className={styles.tableCard}>
+            {/* ... (keep header) */}
             <header className={styles.header}>
                 <h3 className={styles.title}>Booked Slot Records</h3>
-                <p className={styles.subtitle}>Preview all booked research slots and download the data.</p>
+
 
                 <div className={styles.actions}>
-                    <select className={styles.sortSelect} onChange={handleSortChange} defaultValue="status_pending">
+                    <select className={styles.sortSelect} onChange={handleSortChange} defaultValue="date_desc">
                         <option value="date_asc">Meeting Date (Earliest First)</option>
                         <option value="date_desc">Meeting Date (Latest First)</option>
                         <option value="status_upcoming">Status: Upcoming First</option>
@@ -147,33 +185,35 @@ const AdminTable = () => {
             <table className={styles.table}>
                 <thead>
                     <tr>
+                        <th>FACULTY NAME</th>
                         <th>SCHOLAR NAME</th>
                         <th>REG NO.</th>
-                        <th>FACULTY NAME</th>
+                        <th>MEETING TYPE</th>
                         <th>DATE & TIME</th>
                         <th>STATUS</th>
-                        <th>DETAILS</th>
+                        <th>ACTIONS</th>
                     </tr>
                 </thead>
                 <tbody>
                     {loading ? (
-                        <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center' }}>Loading data...</td></tr>
+                        <tr><td colSpan={7} style={{ padding: '2rem', textAlign: 'center' }}>Loading data...</td></tr>
                     ) : sortedRows.length === 0 ? (
-                        <tr><td colSpan={6} style={{ padding: '2rem', textAlign: 'center' }}>No records found. Run schema.sql!</td></tr>
+                        <tr><td colSpan={7} style={{ padding: '2rem', textAlign: 'center' }}>No records found. Run schema.sql!</td></tr>
                     ) : (
                         sortedRows.map(row => (
                             <tr key={row.id}>
+                                <td>{row.faculty}</td>
                                 <td>
                                     <div className={styles.studentCell}>
                                         <div className={styles.avatar}>{row.name ? row.name[0] : '?'}</div>
                                         <div>
                                             <div className={styles.studentName}>{row.name}</div>
-                                            <div className={styles.studentCourse}>{row.course}</div>
+                                            {/* <div className={styles.studentCourse}>{row.course}</div> */}
                                         </div>
                                     </div>
                                 </td>
                                 <td className={styles.mono}>{row.regNo}</td>
-                                <td>{row.faculty}</td>
+                                <td style={{ fontWeight: 500, color: '#4b5563' }}>{row.meetingType}</td>
                                 <td>
                                     <div className={styles.dateCell}>
                                         <div>{row.date}</div>
@@ -186,16 +226,32 @@ const AdminTable = () => {
                                     </span>
                                 </td>
                                 <td>
-                                    {['pending', 'upcoming'].includes(row.status.toLowerCase()) && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        {['pending', 'upcoming'].includes(row.status.toLowerCase()) && (
+                                            <button
+                                                className={styles.confirmBtn}
+                                                onClick={() => handleConfirm(row.id)}
+                                                title="Confirm Booking"
+                                            >
+                                                <CheckCircle size={18} />
+                                                Confirm
+                                            </button>
+                                        )}
                                         <button
-                                            className={styles.confirmBtn}
-                                            onClick={() => handleConfirm(row.id)}
-                                            title="Confirm Booking"
+                                            onClick={() => handleDeleteBooking(row.id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                color: '#ef4444', // Red
+                                                padding: '4px',
+                                                borderRadius: '4px',
+                                            }}
+                                            title="Delete Booking Record"
                                         >
-                                            <CheckCircle size={18} />
-                                            Confirm
+                                            <Trash2 size={18} />
                                         </button>
-                                    )}
+                                    </div>
                                 </td>
                             </tr>
                         )))}

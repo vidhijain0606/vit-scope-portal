@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import styles from './DashboardView.module.css';
-import BookingCard, { BookingProps } from './BookingCard'; // Import interface
+import BookingCard, { BookingCardProps } from './BookingCard'; // Import interface
 import { supabase } from '@/utils/supabase';
 import { checkAccess } from '@/utils/accessControl';
 import AlertModal from '../UI/AlertModal';
@@ -10,7 +10,7 @@ const DashboardView = () => {
     const [user, setUser] = React.useState<any>(null);
     const [activeTab, setActiveTab] = React.useState<'upcoming' | 'completed' | 'cancelled'>('upcoming');
     // searchTerm state removed
-    const [bookings, setBookings] = React.useState<BookingProps[]>([]);
+    const [bookings, setBookings] = React.useState<BookingCardProps[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [anonCount, setAnonCount] = useState<number | null>(null);
     const [alertData, setAlertData] = React.useState<{ isOpen: boolean, title: string, message: string, type: 'error' | 'success' | 'info' }>({
@@ -42,6 +42,11 @@ const DashboardView = () => {
         getUser();
     }, []);
 
+    const [meetingTypeFilter, setMeetingTypeFilter] = useState<string>('All');
+    const [statusFilter, setStatusFilter] = useState<string>('All');
+
+    // ... (keep existing getUser effect)
+
     React.useEffect(() => {
         const fetchBookings = async () => {
             if (!user || !user.email) {
@@ -51,42 +56,55 @@ const DashboardView = () => {
 
             setLoading(true);
 
+            const todayStr = new Date().toISOString().split('T')[0];
+
             // 1. Try Authenticated Fetch
             const { data: authData, error: authError } = await supabase
                 .from('bookings')
                 .select('*')
-                // Filter by emp_email (case insensitive)
-                .ilike('emp_email', user.email);
+                .ilike('emp_email', user.email)
+                // REMOVED: .gte('date', todayStr) -- We want ALL bookings now
+
+                // Sort: Latest booking (nearest date) to farthest
+                // Actually, for past meetings, we might want them descending?
+                // But user asked for "Latest booking to farther date". 
+                // Usually for upcoming: ASC (nearest first).
+                // For past: DESC (most recent first).
+                // Let's stick to simple ASC for now or generic sort.
+                // Or maybe just sort by date ascending overall.
+                .order('date', { ascending: true })
+                .order('start_time', { ascending: true });
 
             let finalBookings = authData || [];
 
-            // 2. Fallback: If Auth returns nothing or errors, try Anonymous Fetch
-            // (Exploiting potential RLS misconfiguration where Anon > Auth)
+            // 2. Fallback (Anon)
             if (authError || !authData || authData.length === 0) {
+                // ... same fallback logic, removing .gte constraint ...
                 console.log('Auth fetch empty/failed, trying Anon fallback...');
                 try {
                     const { createClient } = await import('@supabase/supabase-js');
                     const { supabaseUrl, supabaseAnonKey } = await import('@/utils/supabase');
-                    // Create a fresh client that does NOT persist the session (truly anonymous)
                     const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
                         auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
                     });
 
-                    const { data: anonData } = await anonClient.from('bookings').select('*');
+                    const { data: anonData } = await anonClient
+                        .from('bookings')
+                        .select('*')
+                        // REMOVED .gte constraint
+                        .order('date', { ascending: true })
+                        .order('start_time', { ascending: true });
 
                     if (anonData && anonData.length > 0) {
-                        // Client-side Filter
                         const userEmailLower = user.email.toLowerCase();
                         const fallbackMatches = anonData.filter((b: any) =>
                             b.emp_email?.toLowerCase() === userEmailLower ||
-                            b.user_id === user.id // Just in case
+                            b.user_id === user.id
                         );
-                        if (fallbackMatches.length > 0) {
-                            finalBookings = fallbackMatches;
-                        }
+                        if (fallbackMatches.length > 0) finalBookings = fallbackMatches;
                     }
                 } catch (err) {
-                    console.error('Fallback fetch failed', err);
+                    console.error('Fallback error', err);
                 }
             }
 
@@ -94,10 +112,12 @@ const DashboardView = () => {
             const mapped = finalBookings.map((b: any) => ({
                 id: b.id,
                 title: b.title,
+                meeting_type: b.meeting_type || b.title, // Ensure we have a filterable field
                 date: {
                     month: new Date(b.date).toLocaleString('default', { month: 'short' }).toUpperCase(),
                     day: new Date(b.date).getDate().toString()
                 },
+                dateStr: b.date, // Store purely for sorting if needed (already sorted by DB)
                 time: `${b.start_time} - ${b.end_time}`,
                 isOnline: b.is_online,
                 student: {
@@ -112,7 +132,7 @@ const DashboardView = () => {
         };
 
         fetchBookings();
-    }, [user?.email]); // Use primitive dependency to avoid object reference instability and HMR errors.
+    }, [user?.email]);
 
     const handleAlertClose = async () => {
         setAlertData(prev => ({ ...prev, isOpen: false }));
@@ -145,9 +165,6 @@ const DashboardView = () => {
             if (updateBookingError) throw updateBookingError;
 
             // 3. Make the slot available again
-            // matching by date, start_time, end_time since we don't have slot_id linkage
-            // IMPORTANT: `bookingData.date` might be full timestamp or date string string. 
-            // `slots.date` is date column.
             const dateStr = new Date(bookingData.date).toISOString().split('T')[0];
 
             const { error: slotError } = await supabase
@@ -159,8 +176,6 @@ const DashboardView = () => {
 
             if (slotError) {
                 console.warn('Could not free up slot automatically', slotError);
-                // Try alternate match without date formatting if needed? 
-                // Usually Supabase date column handles YYYY-MM-DD
             }
 
             // 4. Update UI locally
@@ -176,12 +191,55 @@ const DashboardView = () => {
         }
     };
 
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const filteredBookings = bookings.filter(booking => {
+        // Helper to check if date is past
+        // booking.dateStr is YYYY-MM-DD
+        const isPast = booking.dateStr < todayStr;
+        const isCancelled = booking.status === 'cancelled';
+
+        // 1. Tab Filter
         if (activeTab === 'upcoming') {
-            return ['upcoming', 'pending', 'confirmed'].includes(booking.status.toLowerCase());
+            // Future dates AND not cancelled
+            // Also include today
+            if (isCancelled) return false;
+            return !isPast; // Date >= Today
         }
-        return booking.status === activeTab;
+        else if (activeTab === 'completed') {
+            // Past dates OR explicitly completed status
+            if (isCancelled) return false;
+            return isPast || booking.status === 'completed';
+        }
+        else if (activeTab === 'cancelled') {
+            return isCancelled;
+        }
+
+        // 2. Meeting Type Filter
+        if (meetingTypeFilter !== 'All' && booking.title !== meetingTypeFilter) return false;
+
+        // 3. Status Filter (specific)
+        if (statusFilter !== 'All' && booking.status !== statusFilter) return false;
+
+        return true;
     });
+
+    // Helper for counts
+    const getTabCount = (tab: string) => {
+        return bookings.filter(b => {
+            const isPast = b.dateStr < todayStr;
+            const isCancelled = b.status === 'cancelled';
+            if (tab === 'upcoming') return !isPast && !isCancelled;
+            if (tab === 'completed') return (isPast || b.status === 'completed') && !isCancelled;
+            if (tab === 'cancelled') return isCancelled;
+            return false;
+        }).length;
+    };
+
+    // Unique Meeting Types for Dropdown
+    const meetingTypes = ['All', ...Array.from(new Set(bookings.map(b => b.title)))];
+    // Statuses for Dropdown (dependent on Tab? maybe just generic)
+    const statuses = ['All', 'upcoming', 'pending', 'confirmed', 'cancelled', 'completed'];
 
     return (
         <div className={styles.container}>
@@ -197,29 +255,52 @@ const DashboardView = () => {
                 <p className={styles.pageSubtitle}>Manage your upcoming and past research appointments.</p>
             </header>
 
-
             <div className={styles.controls}>
                 <div className={styles.tabs}>
                     <button
                         className={`${styles.tab} ${activeTab === 'upcoming' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('upcoming')}
                     >
-                        Upcoming <span className={styles.countBadge}>{bookings.filter(b => ['upcoming', 'pending', 'confirmed'].includes(b.status.toLowerCase())).length}</span>
+                        Upcoming <span className={styles.countBadge}>{getTabCount('upcoming')}</span>
                     </button>
                     <button
                         className={`${styles.tab} ${activeTab === 'completed' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('completed')}
                     >
-                        Completed
+                        Completed <span className={styles.countBadge}>{getTabCount('completed')}</span>
                     </button>
                     <button
                         className={`${styles.tab} ${activeTab === 'cancelled' ? styles.activeTab : ''}`}
                         onClick={() => setActiveTab('cancelled')}
                     >
-                        Cancelled
+                        Cancelled <span className={styles.countBadge}>{getTabCount('cancelled')}</span>
                     </button>
                 </div>
-                {/* Search box removed */}
+
+                {/* Filters */}
+                <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <select
+                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                        value={meetingTypeFilter}
+                        onChange={(e) => setMeetingTypeFilter(e.target.value)}
+                    >
+                        <option value="All">All Meeting Types</option>
+                        {meetingTypes.filter(t => t !== 'All').map(t => (
+                            <option key={t} value={t}>{t}</option>
+                        ))}
+                    </select>
+
+                    <select
+                        style={{ padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="All">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="upcoming">Upcoming</option>
+                    </select>
+                </div>
             </div>
 
             <div className={styles.bookingList}>
@@ -231,7 +312,7 @@ const DashboardView = () => {
                     ))
                 ) : (
                     <div className={styles.emptyState}>
-                        No {activeTab} bookings found.
+                        No {activeTab} bookings found matching filters.
                     </div>
                 )}
             </div>

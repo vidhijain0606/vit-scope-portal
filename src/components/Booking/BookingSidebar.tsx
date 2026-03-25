@@ -81,15 +81,48 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
 
         // Validation Logic
         const restrictedTypes = ['SYNOPSIS MEETING', 'ORAL EXAM'];
-        const allowedStartTimes = ['11:30', '14:30', '16:00'];
 
-        // Extract start time from "HH:mm - HH:mm"
-        const startTime = selectedTime.split(' - ')[0]?.trim();
+        // Exact time matching strings
+        const restrictedAllowedTimes = ['10:00', '11:30', '14:30', '16:00'];
+        const standardAllowedTimes = ['10:00', '11:00', '11:30', '12:00', '15:00', '15:30', '16:00'];
+
+        // Extract start time from "HH:mm - HH:mm" or just "HH:mm"
+        // The SlotGrid passes "startTime" which is usually "HH:mm:ss" or "HH:mm". 
+        // We need to normalize.
+        let startTime = selectedTime.split(' - ')[0]?.trim();
+        // Remove seconds if present
+        if (startTime.split(':').length === 3) {
+            startTime = startTime.split(':').slice(0, 2).join(':');
+        }
 
         if (restrictedTypes.includes(formData.meetingType)) {
-            if (!allowedStartTimes.includes(startTime)) {
-                alert(`⚠️ Restriction: ${formData.meetingType} can ONLY be booked at 11:30, 14:30, or 16:00.\n\nCurrent Time Selected: ${startTime}`);
+            if (!restrictedAllowedTimes.includes(startTime)) {
+                alert(`⚠️ Restriction: ${formData.meetingType} can ONLY be booked at:\n10:00, 11:30, 14:30 (2:30 PM), or 16:00 (4:00 PM).\n\nCurrent Time Selected: ${startTime}`);
                 return;
+            }
+        } else {
+            // Optional: Check if "Other" meetings are allowed at restricted times? 
+            // User said: "other slots go as : 10:300 11 , 11:30 ,12 3,3:3- 4:00"
+            // Interpreting as: 10:00, 11:00, 11:30, 12:00, 15:00, 15:30, 16:00.
+            // If they pick a time not in this list (e.g. 14:30) for a standard meeting, strictly speaking it wasn't in the list?
+            // But usually restrictions are one-way. Let's enforce standard list too if desired, or just loose.
+            // "other slots go as..." implies a definition. Let's warn if it matches none of the standard list.
+
+            // Actually, let's keep it simple. If it's NOT restricted type, is it allowed to book 14:30?
+            // "other slots go as: ..." list didn't include 14:30. 
+            // So if I book "General Meeting" at 14:30, is it allowed?
+            // User prompt: "other slots go as : 10:300 11 , 11:30 ,12 3,3:3- 4:00"
+            // (10:00, 11:00, 11:30, 12:00, 15:00, 15:30, 16:00)
+            // 14:30 is NOT in that list. So 14:30 is EXCLUSIVE to Synopsis? 
+            // Let's enforce that logic.
+
+            if (!standardAllowedTimes.includes(startTime) && !restrictedAllowedTimes.includes(startTime)) {
+                // If the slot exists but isn't in EITHER list (weird), warn.
+                // But specifically, if it is 14:30 and I am Standard?
+                if (startTime === '14:30') {
+                    alert(`⚠️ Restriction: 14:30 slot is reserved for Synopsis/Oral Exams.`);
+                    return;
+                }
             }
         }
 
@@ -226,7 +259,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ selectedDate, selectedS
                             <option value="ORAL EXAM">ORAL EXAM</option>
                         </select>
                         <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>
-                            Note: SYNOPSIS & ORAL EXAM only at 11:30, 14:30, 16:00
+                            Note: SYNOPSIS & ORAL EXAM only at 10:00, 11:30, 14:30, 16:00
                         </p>
                     </div>
 

@@ -3,7 +3,7 @@ import { Clock, Video, MapPin, ExternalLink } from 'lucide-react';
 import styles from './BookingCard.module.css';
 import Button from '../UI/Button';
 
-interface BookingCardProps {
+export interface BookingCardProps {
     id: string;
     title: string;
     date: { month: string; day: string };
@@ -12,6 +12,8 @@ interface BookingCardProps {
     student: { name: string; regNo: string; avatar?: string };
     status: 'upcoming' | 'completed' | 'cancelled' | 'confirmed' | 'pending';
     onCancel?: (id: string) => void;
+    dateStr?: string;     // For filtering logic
+    meeting_type?: string; // For filtering logic
 }
 
 const BookingCard: React.FC<BookingCardProps> = ({

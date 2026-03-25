@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
 import { supabase } from '@/utils/supabase';
 import { FolderOpen, FileText, ArrowRight } from 'lucide-react';
+import DocumentViewerModal from '@/components/UI/DocumentViewerModal';
 
 export default function FacultyDocumentsPage() {
     const [documents, setDocuments] = useState<any[]>([]);
@@ -23,8 +24,25 @@ export default function FacultyDocumentsPage() {
         setLoading(false);
     };
 
+    const handleViewDocument = (doc: any) => {
+        setSelectedDoc(doc);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedDoc(null);
+    };
+
     return (
         <div className={styles.container}>
+            {selectedDoc && (
+                <DocumentViewerModal
+                    isOpen={!!selectedDoc}
+                    onClose={handleCloseModal}
+                    title={selectedDoc.title}
+                    fileUrl={selectedDoc.file_url}
+                    isOffice={!!selectedDoc.file_url.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i)}
+                />
+            )}
             <header className={styles.header}>
                 <h1 className={styles.title}>Important Documents</h1>
                 <p className={styles.subtitle}>Access guidelines, forms, and research materials shared by the administration.</p>
@@ -41,27 +59,34 @@ export default function FacultyDocumentsPage() {
                     </div>
                 ) : (
                     <div className={styles.grid}>
-                        {documents.map(doc => (
-                            <a
-                                key={doc.id}
-                                href={doc.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className={styles.docCard}
-                            >
-                                <div className={styles.docIconWrapper}>
-                                    <FileText size={24} className={styles.docIcon} />
+                        {documents.map(doc => {
+                            // The isOffice check is now primarily for the modal, but can be used for display if needed.
+                            // For this change, the status badge is simplified to "View Document".
+                            // const isOffice = doc.file_url.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i);
+
+                            return (
+                                <div
+                                    key={doc.id}
+                                    onClick={() => handleViewDocument(doc)}
+                                    className={styles.docCard}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    <div className={styles.docIconWrapper}>
+                                        <FileText size={24} className={styles.docIcon} />
+                                    </div>
+                                    <div className={styles.docBody}>
+                                        <h3 className={styles.docTitle}>{doc.title}</h3>
+                                        <p className={styles.docDesc}>{doc.description || 'No description available.'}</p>
+                                        <span className={styles.statusBadge}>
+                                            View Document
+                                        </span>
+                                    </div>
+                                    <div className={styles.actionArrow}>
+                                        <ArrowRight size={16} />
+                                    </div>
                                 </div>
-                                <div className={styles.docBody}>
-                                    <h3 className={styles.docTitle}>{doc.title}</h3>
-                                    <p className={styles.docDesc}>{doc.description || 'No description available.'}</p>
-                                    <span className={styles.statusBadge}>Available for Download</span>
-                                </div>
-                                <div className={styles.actionArrow}>
-                                    <ArrowRight size={16} />
-                                </div>
-                            </a>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
