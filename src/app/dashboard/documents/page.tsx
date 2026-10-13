@@ -1,25 +1,25 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { supabase } from '@/utils/supabase';
 import { FileText, Download } from 'lucide-react';
-
-// Shared styles can be reused or we can create new ones.
-// For simplicity, let's use inline/utility classes or a new module.
 import styles from './Documents.module.css';
 
+interface Doc {
+    id: string;
+    title: string;
+    description: string | null;
+    blob_url: string;
+    created_at: string;
+}
+
 export default function FacultyDocumentsPage() {
-    const [documents, setDocuments] = useState<any[]>([]);
+    const [documents, setDocuments] = useState<Doc[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchDocuments = async () => {
-            const { data } = await supabase
-                .from('documents')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (data) setDocuments(data);
+            const res = await fetch('/api/documents');
+            if (res.ok) setDocuments(await res.json());
             setLoading(false);
         };
         fetchDocuments();
@@ -52,7 +52,7 @@ export default function FacultyDocumentsPage() {
                             </div>
                             <div className={styles.actions}>
                                 <a
-                                    href={doc.file_url}
+                                    href={doc.blob_url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className={styles.downloadBtn}

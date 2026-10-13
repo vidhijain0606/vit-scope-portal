@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Trash2, Calendar, Clock } from 'lucide-react';
-import { supabase } from '@/utils/supabase';
 
 interface Slot {
     id: string;
@@ -20,17 +19,9 @@ const AdminSlotList: React.FC<AdminSlotListProps> = ({ refreshTrigger }) => {
 
     const fetchSlots = async () => {
         setLoading(true);
-        const todayStr = new Date().toISOString().split('T')[0];
-
-        const { data, error } = await supabase
-            .from('slots')
-            .select('*')
-            .gte('date', todayStr) // Only future/today slots
-            .order('date', { ascending: true })
-            .order('start_time', { ascending: true });
-
-        if (data && !error) {
-            setSlots(data);
+        const res = await fetch('/api/slots?all=true');
+        if (res.ok) {
+            setSlots(await res.json());
         }
         setLoading(false);
     };
@@ -48,12 +39,12 @@ const AdminSlotList: React.FC<AdminSlotListProps> = ({ refreshTrigger }) => {
 
         if (!confirm(confirmMessage)) return;
 
-        // If it's booked, we should ideally find the booking and cancel it too, 
+        // If it's booked, we should ideally find the booking and cancel it too,
         // but for now let's just delete the slot as requested to "get rid of it".
-        const { error } = await supabase.from('slots').delete().eq('id', id);
+        const res = await fetch(`/api/slots?id=${id}`, { method: 'DELETE' });
 
-        if (error) {
-            console.error('Error deleting slot:', error);
+        if (!res.ok) {
+            console.error('Error deleting slot');
             alert('Failed to delete slot.');
         } else {
             setSlots(prev => prev.filter(s => s.id !== id));

@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import styles from './AdminSlotForm.module.css';
-import { supabase } from '@/utils/supabase';
 
 interface AdminSlotFormProps {
     onSlotCreated?: () => void;
@@ -56,20 +55,31 @@ export default function AdminSlotForm({ onSlotCreated }: AdminSlotFormProps) {
                 date: date,
                 start_time: time,
                 end_time: getEndTime(time),
-                is_available: true
             }));
 
-            const { error } = await supabase.from('slots').insert(slotsToInsert);
+            const res = await fetch('/api/slots', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slots: slotsToInsert }),
+            });
 
-            if (error) throw error;
+            if (!res.ok) {
+                const { error } = await res.json();
+                throw new Error(error || 'Failed to create slots');
+            }
 
-            alert('Slots created successfully!');
+            const { inserted, skipped } = await res.json();
+            if (skipped.length > 0) {
+                alert(`${inserted.length} slot(s) created. Skipped ${skipped.length} already-existing slot(s): ${skipped.join(', ')}`);
+            } else {
+                alert('Slots created successfully!');
+            }
             if (onSlotCreated) onSlotCreated(); // Trigger refresh
             setSelectedTimes([]);
             // Optional: reset date? Keep it for bulk creation convenience.
-        } catch (err: any) {
+        } catch (err) {
             console.error(err);
-            alert('Error creating slots: ' + err.message);
+            alert('Error creating slots: ' + (err instanceof Error ? err.message : 'Unknown error'));
         } finally {
             setLoading(false);
         }

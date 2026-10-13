@@ -2,7 +2,19 @@ import React from 'react';
 import { CheckCircle, Trash2 } from 'lucide-react'; // Added Trash2
 import styles from './AdminTable.module.css';
 
-import { supabase } from '@/utils/supabase';
+interface BookingRow {
+    id: string;
+    scholar_name: string | null;
+    student_name: string | null;
+    title: string | null;
+    scholar_id: string | null;
+    student_reg_no: string | null;
+    emp_name: string | null;
+    date: string;
+    start_time: string;
+    status: string | null;
+    created_at: string;
+}
 
 const AdminTable = () => {
     const [rows, setRows] = React.useState<any[]>([]);
@@ -13,14 +25,10 @@ const AdminTable = () => {
     React.useEffect(() => {
         const fetchData = async () => {
             setLoading(true);
-            // Added server-side sort as well (Latest First)
-            const { data, error } = await supabase
-                .from('bookings')
-                .select('*')
-                .order('date', { ascending: false })
-                .order('start_time', { ascending: true });
+            const res = await fetch('/api/admin/bookings');
+            const data: BookingRow[] | null = res.ok ? await res.json() : null;
 
-            if (data && !error) {
+            if (data) {
                 setRows(data.map(b => ({
                     id: b.id,
                     name: b.scholar_name || b.student_name || 'Scholar',
@@ -41,17 +49,18 @@ const AdminTable = () => {
     }, []);
 
     const handleConfirm = async (id: string) => {
-        const { error } = await supabase
-            .from('bookings')
-            .update({ status: 'confirmed' })
-            .eq('id', id);
+        const res = await fetch('/api/admin/bookings', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status: 'confirmed' }),
+        });
 
-        if (!error) {
+        if (res.ok) {
             setRows(prev => prev.map(row =>
                 row.id === id ? { ...row, status: 'Confirmed' } : row
             ));
         } else {
-            console.error('Error confirming booking:', error);
+            console.error('Error confirming booking');
             alert('Failed to confirm booking');
         }
     };
@@ -70,15 +79,12 @@ const AdminTable = () => {
     const handleDeleteBooking = async (id: string) => {
         if (!confirm('⚠️ Are you sure you want to PERMANENTLY DELETE this booking record?')) return;
 
-        const { error } = await supabase.from('bookings').delete().eq('id', id);
+        const res = await fetch(`/api/admin/bookings?id=${id}`, { method: 'DELETE' });
 
-        if (!error) {
+        if (res.ok) {
             setRows(prev => prev.filter(row => row.id !== id));
-            // Optional: We could also try to free the slot here, but usually a hard delete implies cleanup.
-            // If the user wants to free the slot, they should normally use "Cancel". 
-            // This Delete is for cleaning up bad data.
         } else {
-            console.error('Error deleting booking:', error);
+            console.error('Error deleting booking');
             alert('Failed to delete booking');
         }
     };

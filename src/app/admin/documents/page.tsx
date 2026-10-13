@@ -1,12 +1,18 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
-import { supabase } from '@/utils/supabase';
 import Button from '@/components/UI/Button';
 import { FileText, Trash2, ExternalLink } from 'lucide-react';
 
+interface Doc {
+    id: string;
+    title: string;
+    description: string | null;
+    blob_url: string;
+}
+
 export default function AdminDocumentsPage() {
-    const [documents, setDocuments] = useState<any[]>([]);
+    const [documents, setDocuments] = useState<Doc[]>([]);
     const [loading, setLoading] = useState(true);
     const [file, setFile] = useState<File | null>(null);
     const [title, setTitle] = useState('');
@@ -19,12 +25,8 @@ export default function AdminDocumentsPage() {
 
     const fetchDocuments = async () => {
         setLoading(true);
-        const { data, error } = await supabase
-            .from('documents')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (data) setDocuments(data);
+        const res = await fetch('/api/documents');
+        if (res.ok) setDocuments(await res.json());
         setLoading(false);
     };
 
@@ -44,46 +46,28 @@ export default function AdminDocumentsPage() {
         setSubmitting(true);
 
         try {
-            // 1. Upload file to Supabase Storage
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${title.replace(/\s+/g, '_')}.${fileExt}`;
-            const filePath = `${fileName}`;
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', title);
+            formData.append('description', description);
 
-            const { data: uploadData, error: uploadError } = await supabase.storage
-                .from('documents')
-                .upload(filePath, file);
+            const res = await fetch('/api/documents', { method: 'POST', body: formData });
+            if (!res.ok) {
+                const { error } = await res.json();
+                throw new Error(error || 'Upload failed');
+            }
 
-            if (uploadError) throw uploadError;
-
-            // 2. Get Public URL
-            const { data: { publicUrl } } = supabase.storage
-                .from('documents')
-                .getPublicUrl(filePath);
-
-            // 3. Save metadata to Database
-            const { error: dbError } = await supabase.from('documents').insert([
-                {
-                    title,
-                    file_url: publicUrl,
-                    description
-                }
-            ]);
-
-            if (dbError) throw dbError;
-
-            // Success cleanup
             setTitle('');
             setFile(null);
             setDescription('');
-            // Reset file input manually if needed, or rely on state key
             const fileInput = document.getElementById('fileInput') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
 
             fetchDocuments();
 
-        } catch (error: any) {
+        } catch (error) {
             console.error('Upload error:', error);
-            alert('Error adding document: ' + (error.message || 'Unknown error'));
+            alert('Error adding document: ' + (error instanceof Error ? error.message : 'Unknown error'));
         } finally {
             setSubmitting(false);
         }
@@ -92,10 +76,8 @@ export default function AdminDocumentsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('Are you sure you want to delete this document?')) return;
 
-        // Ideally navigate to find the file path to delete from storage too, 
-        // but for now we just delete the record.
-        const { error } = await supabase.from('documents').delete().eq('id', id);
-        if (!error) {
+        const res = await fetch(`/api/documents?id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
             setDocuments(prev => prev.filter(d => d.id !== id));
         }
     };
@@ -163,7 +145,7 @@ export default function AdminDocumentsPage() {
                                     <div className={styles.docContent}>
                                         <h3 className={styles.docTitle}>{doc.title}</h3>
                                         <p className={styles.docDesc}>{doc.description || 'No description provided.'}</p>
-                                        <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className={styles.docLink}>
+                                        <a href={doc.blob_url} target="_blank" rel="noopener noreferrer" className={styles.docLink}>
                                             Open Link <ExternalLink size={14} style={{ marginLeft: '4px' }} />
                                         </a>
                                     </div>

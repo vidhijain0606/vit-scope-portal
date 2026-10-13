@@ -6,20 +6,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 import Button from '@/components/UI/Button';
-import { supabase } from '@/utils/supabase';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
 
   const handleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) throw error;
+      await signIn('google', { callbackUrl: '/dashboard' });
     } catch (error) {
       console.error('Error logging in with Google:', error);
       alert('Error logging in with Google. Please check console for details.');
@@ -103,6 +97,7 @@ export default function LoginPage() {
 
       <footer className={styles.footer}>
         <div className={styles.footerLinks}>
+          <Link href="/disclaimer">Disclaimer</Link>
           <Link href="#">Privacy Policy</Link>
           <Link href="#">Terms of Service</Link>
           <Link href="#">Faculty Guidelines</Link>

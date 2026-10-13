@@ -4,29 +4,15 @@ import styles from './AdminTopbar.module.css';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/utils/supabase';
+import { useSession, signOut } from 'next-auth/react';
 
 const AdminTopbar = () => {
     const router = useRouter();
-    const [name, setName] = React.useState('Admin');
-
-    React.useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setName(user.user_metadata?.full_name || user.email || 'Admin');
-            }
-        };
-        getUser();
-    }, []);
+    const { data: session } = useSession();
+    const name = session?.user?.name || session?.user?.email || 'Admin';
 
     const handleLogout = async () => {
-        try {
-            await supabase.auth.signOut();
-            router.push('/');
-        } catch (error) {
-            console.error('Error logging out:', error);
-        }
+        await signOut({ callbackUrl: '/' });
     };
 
     return (

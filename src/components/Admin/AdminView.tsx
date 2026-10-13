@@ -1,4 +1,3 @@
-import { supabase } from '@/utils/supabase';
 import React, { useEffect, useState } from 'react';
 import { CalendarRange, CheckCircle, XCircle, GraduationCap } from 'lucide-react';
 import styles from './AdminView.module.css';
@@ -15,31 +14,10 @@ export default function AdminView() {
 
     useEffect(() => {
         const fetchStats = async () => {
-            // Fetch bookings counts
-            const { data: bookings } = await supabase.from('bookings').select('status');
-            const total = bookings?.length || 0;
-            const confirmed = bookings?.filter(b => b.status === 'upcoming' || b.status === 'confirmed').length || 0;
-            const cancelled = bookings?.filter(b => b.status === 'cancelled').length || 0;
-
-            // Fetch users count (handling case where table doesn't exist yet)
-            let userCount = 0;
-            try {
-                const { count, error } = await supabase.from('users').select('*', { count: 'exact', head: true });
-                if (!error) {
-                    userCount = count || 0;
-                } else {
-                    console.warn('Could not fetch user stats (table might be missing):', error.message);
-                }
-            } catch (err) {
-                console.warn('Failed to fetch user stats via Supabase.');
+            const res = await fetch('/api/admin/stats');
+            if (res.ok) {
+                setStats(await res.json());
             }
-
-            setStats({
-                totalBookings: total,
-                confirmedSlots: confirmed,
-                cancelledSlots: cancelled,
-                totalUsers: userCount
-            });
         };
 
         fetchStats();
