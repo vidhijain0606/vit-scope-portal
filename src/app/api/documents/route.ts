@@ -1,13 +1,31 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { pool } from '@/lib/db';
-import { getContainerClient } from '@/lib/blob';
+import { getContainerClient, getReadSasUrl } from '@/lib/blob';
 
 export async function GET() {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { rows } = await pool.query(
     'SELECT * FROM documents ORDER BY created_at DESC'
   );
-  return NextResponse.json(rows);
+
+  // Swap each stored (bare, non-public) blob URL for a freshly-signed,
+  // short-lived read URL — the stored URL alone 404s since the storage
+  // account doesn't allow public access.
+  const withSasUrls = rows.map((row) => {
+    try {
+      return { ...row, blob_url: getReadSasUrl(row.blob_url) };
+    } catch (err) {
+      console.error('Failed to sign blob URL for document', row.id, err);
+      return row;
+    }
+  });
+
+  return NextResponse.json(withSasUrls);
 }
 
 async function requireAdmin() {

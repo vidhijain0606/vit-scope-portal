@@ -140,8 +140,36 @@
 
 .backBtn {
     flex: 1;
+    min-height: 48px;
 }
 
 .submitBtn {
     flex: 2;
+    min-height: 48px;
+}
+
+.policyNote {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    line-height: 1.5;
+}
+
+.policyNote a {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+@media (max-width: 720px) {
+    .stickyMobile {
+        position: sticky;
+        bottom: 0;
+        background: var(--bg-white);
+        padding: 0.75rem 0;
+        margin: 0 -1.5rem -1.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
+        z-index: 5;
+    }
 }

@@ -62,4 +62,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/',
   },
   session: { strategy: 'jwt' },
+  // Required on Azure App Service (and most non-Vercel hosts): Auth.js only
+  // trusts the request Host header automatically on Vercel, otherwise every
+  // auth route throws "UntrustedHost" even with NEXTAUTH_URL set correctly.
+  trustHost: true,
 });

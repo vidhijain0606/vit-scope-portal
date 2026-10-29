@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeftCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import styles from './BookingSidebar.module.css';
 import Button from '../UI/Button';
 
@@ -111,7 +112,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ meetingType, selectedDa
 
                     <div className={styles.confirmWrapper}>
                         <Button
-                            variant="primary"
+                            variant="accent"
                             className={styles.confirmBtn}
                             onClick={handleInitialConfirm}
                         >
@@ -182,7 +183,13 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ meetingType, selectedDa
                         />
                     </div>
 
-                    <div className={styles.actions}>
+                    <p className={styles.policyNote}>
+                        By confirming, you agree to the portal&apos;s{' '}
+                        <Link href="/disclaimer">Disclaimer &amp; Policies</Link>. Confirming here does not
+                        replace your VTOP booking — complete both.
+                    </p>
+
+                    <div className={`${styles.actions} ${styles.stickyMobile}`}>
                         <Button
                             variant="secondary"
                             className={styles.backBtn}
@@ -191,7 +198,7 @@ const BookingSidebar: React.FC<BookingSidebarProps> = ({ meetingType, selectedDa
                             Back
                         </Button>
                         <Button
-                            variant="primary"
+                            variant="accent"
                             className={styles.submitBtn}
                             disabled={!formData.empId || !formData.empName || !formData.scholarId || !formData.scholarName}
                             onClick={handleFinalSubmit}

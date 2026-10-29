@@ -10,8 +10,11 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     const authorized = (session?.user as { role?: string } | undefined)?.role === 'admin';
 
     useEffect(() => {
+        // replace (not push): an unauthorized visit must not add a history
+        // entry, or the back button bounces between /admin-login and this
+        // page in a loop once the user does sign in.
         if (status !== 'loading' && !authorized) {
-            router.push('/admin-login');
+            router.replace('/admin-login');
         }
     }, [status, authorized, router]);
 

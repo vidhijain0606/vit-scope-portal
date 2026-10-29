@@ -24,8 +24,7 @@ export async function azureChat(messages: ChatMessage[], maxTokens = 500): Promi
     },
     body: JSON.stringify({
       messages,
-      max_tokens: maxTokens,
-      temperature: 0.3,
+      max_completion_tokens: maxTokens,
     }),
   });
 

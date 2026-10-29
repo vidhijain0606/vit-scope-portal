@@ -1,34 +1,41 @@
 'use client';
 import React, { useState } from 'react';
+import { Check, Clock, Loader2 } from 'lucide-react';
 import styles from './AdminSlotForm.module.css';
+import AlertModal from '../UI/AlertModal';
+import MonthDatePicker from '../UI/MonthDatePicker';
 
 interface AdminSlotFormProps {
     onSlotCreated?: () => void;
+}
+
+function formatTime12h(time: string): string {
+    const [h, m] = time.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    return `${hour12}:${m.toString().padStart(2, '0')} ${period}`;
+}
+
+function formatDateReadable(dateStr: string): string {
+    const d = new Date(`${dateStr}T00:00:00`);
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export default function AdminSlotForm({ onSlotCreated }: AdminSlotFormProps) {
     const [date, setDate] = useState('');
     const [selectedTimes, setSelectedTimes] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+    const [alertData, setAlertData] = useState<{ isOpen: boolean; title: string; message: string; type: 'error' | 'success' | 'info' }>({
+        isOpen: false, title: '', message: '', type: 'info',
+    });
 
-    // Manual Range State
-    const [startTime, setStartTime] = useState('');
-    const [endTime, setEndTime] = useState('');
-    const [duration, setDuration] = useState(30); // Default 30 mins
-    // Defined presets
     const timePresets = [
         "10:00", "11:00", "11:30", "12:00",
-        "14:30", // 2:30 PM
+        "14:30",
         "15:00", "15:30", "16:00",
-        "16:30" // Extra if needed, but sticking to requested list roughly
+        "16:30",
     ];
 
-    // Helper to calculate end time (assuming 1 hour duration by default for simplicity, 
-    // or we can just set start times. 
-    // The previous logic used specific end times.
-    // 10:00 -> 11:00
-    // 11:30 -> 12:30? 
-    // Let's assume 1 hour slots for standard.
     const getEndTime = (start: string) => {
         const [h, m] = start.split(':').map(Number);
         const d = new Date();
@@ -69,17 +76,44 @@ export default function AdminSlotForm({ onSlotCreated }: AdminSlotFormProps) {
             }
 
             const { inserted, skipped } = await res.json();
-            if (skipped.length > 0) {
-                alert(`${inserted.length} slot(s) created. Skipped ${skipped.length} already-existing slot(s): ${skipped.join(', ')}`);
+            const skippedTimes: string[] = skipped.map((s: string) => {
+                const time = s.split(' ')[1];
+                return time ? formatTime12h(time) : s;
+            });
+
+            if (inserted.length === 0 && skipped.length > 0) {
+                setAlertData({
+                    isOpen: true,
+                    title: 'Those slots already exist',
+                    message: `All ${skipped.length} selected time${skipped.length === 1 ? '' : 's'} on ${formatDateReadable(date)} ${skipped.length === 1 ? 'is' : 'are'} already on the calendar (${skippedTimes.join(', ')}). Pick a different date or time to add something new.`,
+                    type: 'info',
+                });
+            } else if (skipped.length > 0) {
+                setAlertData({
+                    isOpen: true,
+                    title: 'Slots created, with a few skipped',
+                    message: `Added ${inserted.length} new slot${inserted.length === 1 ? '' : 's'} on ${formatDateReadable(date)}. ${skipped.length} ${skipped.length === 1 ? 'was' : 'were'} skipped because ${skipped.length === 1 ? 'it already exists' : 'they already exist'}: ${skippedTimes.join(', ')}.`,
+                    type: 'success',
+                });
             } else {
-                alert('Slots created successfully!');
+                setAlertData({
+                    isOpen: true,
+                    title: 'Slots created',
+                    message: `${inserted.length} slot${inserted.length === 1 ? '' : 's'} added for ${formatDateReadable(date)}.`,
+                    type: 'success',
+                });
             }
-            if (onSlotCreated) onSlotCreated(); // Trigger refresh
+
+            if (onSlotCreated) onSlotCreated();
             setSelectedTimes([]);
-            // Optional: reset date? Keep it for bulk creation convenience.
         } catch (err) {
             console.error(err);
-            alert('Error creating slots: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            setAlertData({
+                isOpen: true,
+                title: 'Couldn\'t create slots',
+                message: err instanceof Error ? err.message : 'Something went wrong — please try again.',
+                type: 'error',
+            });
         } finally {
             setLoading(false);
         }
@@ -87,31 +121,41 @@ export default function AdminSlotForm({ onSlotCreated }: AdminSlotFormProps) {
 
     return (
         <div className={styles.container}>
+            <AlertModal
+                isOpen={alertData.isOpen}
+                onClose={() => setAlertData(prev => ({ ...prev, isOpen: false }))}
+                title={alertData.title}
+                message={alertData.message}
+                type={alertData.type}
+            />
+
             <form onSubmit={handleSubmit}>
                 <div className={styles.formGroup}>
                     <label className={styles.label}>Select Date</label>
-                    <input
-                        type="date"
-                        className={styles.input}
+                    <MonthDatePicker
                         value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        required
-                        min={new Date().toISOString().split('T')[0]}
+                        onChange={setDate}
+                        minDate={new Date().toISOString().split('T')[0]}
                     />
                 </div>
 
                 <div className={styles.formGroup}>
                     <label className={styles.label}>Select Time Slots</label>
                     <div className={styles.slotGrid}>
-                        {timePresets.map(time => (
-                            <div
-                                key={time}
-                                className={`${styles.slotCheckbox} ${selectedTimes.includes(time) ? styles.selected : ''}`}
-                                onClick={() => toggleTime(time)}
-                            >
-                                {time}
-                            </div>
-                        ))}
+                        {timePresets.map(time => {
+                            const isSelected = selectedTimes.includes(time);
+                            return (
+                                <button
+                                    type="button"
+                                    key={time}
+                                    className={`${styles.slotCheckbox} ${isSelected ? styles.selected : ''}`}
+                                    onClick={() => toggleTime(time)}
+                                >
+                                    {isSelected ? <Check size={15} /> : <Clock size={15} />}
+                                    {formatTime12h(time)}
+                                </button>
+                            );
+                        })}
                     </div>
                 </div>
 
@@ -120,7 +164,13 @@ export default function AdminSlotForm({ onSlotCreated }: AdminSlotFormProps) {
                     className={styles.submitBtn}
                     disabled={loading || !date || selectedTimes.length === 0}
                 >
-                    {loading ? 'Creating...' : `Create ${selectedTimes.length} Slots`}
+                    {loading ? (
+                        <>
+                            <Loader2 size={18} className={styles.spin} /> Creating...
+                        </>
+                    ) : (
+                        `Create ${selectedTimes.length || ''} Slot${selectedTimes.length === 1 ? '' : 's'}`
+                    )}
                 </button>
             </form>
         </div>

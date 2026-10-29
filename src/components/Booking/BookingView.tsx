@@ -1,9 +1,10 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styles from './BookingView.module.css';
 import SlotGrid from './SlotGrid';
 import BookingSidebar from './BookingSidebar';
 import SuccessModal from '../UI/SuccessModal';
+import AlertModal from '../UI/AlertModal';
 import { MEETING_TYPES } from '@/utils/meetingRules';
 
 export default function BookingView() {
@@ -13,6 +14,25 @@ export default function BookingView() {
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [suggesting, setSuggesting] = useState(false);
+    const [alertData, setAlertData] = useState<{ isOpen: boolean; title: string; message: string; type: 'error' | 'success' | 'info' }>({
+        isOpen: false, title: '', message: '', type: 'info',
+    });
+
+    const [oralExamEnabled, setOralExamEnabled] = useState(false);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            const res = await fetch('/api/settings');
+            if (res.ok) {
+                const data = await res.json();
+                setOralExamEnabled(!!data.oralExamEnabled);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const stepIndex = !meetingType ? 0 : !selectedSlotId ? 1 : 2;
+    const STEPS = ['Select Meeting Type', 'Pick a Slot', 'Enter Details & Confirm'];
 
     const handleSuggestSlot = async () => {
         if (!meetingType) return;
@@ -27,10 +47,20 @@ export default function BookingView() {
             if (res.ok && data.suggestion) {
                 handleSlotSelect(data.suggestion.id, data.suggestion.date, data.suggestion.start_time, data.suggestion.end_time);
             } else {
-                alert(data.reason || data.error || 'No suggestion available right now.');
+                setAlertData({
+                    isOpen: true,
+                    title: 'No suggestion available',
+                    message: data.reason || data.error || 'No suggestion available right now.',
+                    type: 'info',
+                });
             }
         } catch {
-            alert('Could not get an AI suggestion right now.');
+            setAlertData({
+                isOpen: true,
+                title: 'AI assistant unavailable',
+                message: 'Could not get an AI suggestion right now. Please try again shortly.',
+                type: 'error',
+            });
         } finally {
             setSuggesting(false);
         }
@@ -74,12 +104,24 @@ export default function BookingView() {
             setShowSuccessModal(true);
         } catch (err) {
             console.error('Booking failed', err);
-            alert(`Failed to book slot: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            setAlertData({
+                isOpen: true,
+                title: 'Could not book this slot',
+                message: err instanceof Error ? err.message : 'Something went wrong — please try again.',
+                type: 'error',
+            });
         }
     };
 
     return (
         <div className={styles.container}>
+            <AlertModal
+                isOpen={alertData.isOpen}
+                onClose={() => setAlertData(prev => ({ ...prev, isOpen: false }))}
+                title={alertData.title}
+                message={alertData.message}
+                type={alertData.type}
+            />
             {showSuccessModal && (
                 <SuccessModal
                     onClose={() => window.location.href = '/dashboard'}
@@ -91,6 +133,30 @@ export default function BookingView() {
             )}
             <h1 className={styles.pageTitle}>Book a Slot</h1>
             <p className={styles.pageSubtitle}>Choose a meeting type, then select an available time slot.</p>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+                {STEPS.map((label, i) => (
+                    <React.Fragment key={label}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <div style={{
+                                width: 28, height: 28, borderRadius: '50%',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '0.8rem', fontWeight: 700,
+                                background: i <= stepIndex ? '#2563eb' : '#e5e7eb',
+                                color: i <= stepIndex ? '#fff' : '#6b7280',
+                            }}>
+                                {i + 1}
+                            </div>
+                            <span style={{ fontSize: '0.85rem', fontWeight: i === stepIndex ? 700 : 500, color: i <= stepIndex ? '#111827' : '#9ca3af' }}>
+                                {label}
+                            </span>
+                        </div>
+                        {i < STEPS.length - 1 && (
+                            <div style={{ width: 24, height: 2, background: i < stepIndex ? '#2563eb' : '#e5e7eb' }} />
+                        )}
+                    </React.Fragment>
+                ))}
+            </div>
 
             <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
                 <div>
@@ -109,10 +175,20 @@ export default function BookingView() {
                         }}
                     >
                         <option value="" disabled>-- Select Meeting Type --</option>
-                        {MEETING_TYPES.map(t => (
-                            <option key={t} value={t}>{t}</option>
-                        ))}
+                        {MEETING_TYPES.map(t => {
+                            const disabled = t === 'ORAL EXAM' && !oralExamEnabled;
+                            return (
+                                <option key={t} value={t} disabled={disabled}>
+                                    {t}{disabled ? ' (Currently Disabled)' : ''}
+                                </option>
+                            );
+                        })}
                     </select>
+                    {!oralExamEnabled && (
+                        <p style={{ fontSize: '0.78rem', color: '#92400e', marginTop: '0.4rem' }}>
+                            Oral Exam bookings are currently paused by the admin.
+                        </p>
+                    )}
                 </div>
 
                 {meetingType && (

@@ -68,3 +68,15 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     name TEXT
 );
+
+-- Portal-wide admin-controlled feature flags, e.g. freezing/unfreezing
+-- bookings for a specific meeting type without touching code or deploying.
+CREATE TABLE IF NOT EXISTS app_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Oral Exam bookings are frozen by default — admin must explicitly enable them.
+INSERT INTO app_settings (key, value) VALUES ('oral_exam_enabled', 'false')
+ON CONFLICT (key) DO NOTHING;

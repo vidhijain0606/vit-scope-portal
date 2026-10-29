@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { pool } from '@/lib/db';
-import { MEETING_RULES, MeetingType, conflictsWithExisting, groupFor } from '@/utils/meetingRules';
+import { MEETING_RULES, MeetingType, conflictsWithExisting, conflictsWithOwnSchedule, groupFor } from '@/utils/meetingRules';
+import { notifyAdminOfNewBooking } from '@/lib/mail';
+import { isOralExamEnabled } from '@/lib/settings';
 
 export async function GET() {
   const session = await auth();
@@ -45,13 +47,23 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
     }
 
-    await client.query(
-      'UPDATE slots SET is_available = true WHERE id = $1',
-      [rows[0].slot_id]
-    );
+    const cancelled = rows[0];
+
+    // Only re-release the slot for others to book if its start time is
+    // still 24+ hours away — a last-minute cancellation shouldn't let
+    // someone else grab a slot that's about to happen.
+    const slotStart = new Date(`${new Date(cancelled.date).toISOString().split('T')[0]}T${cancelled.start_time}`);
+    const hoursUntilSlot = (slotStart.getTime() - Date.now()) / (1000 * 60 * 60);
+
+    if (hoursUntilSlot >= 24) {
+      await client.query(
+        'UPDATE slots SET is_available = true WHERE id = $1',
+        [cancelled.slot_id]
+      );
+    }
 
     await client.query('COMMIT');
-    return NextResponse.json(rows[0]);
+    return NextResponse.json(cancelled);
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Cancel failed', err);
@@ -73,6 +85,13 @@ export async function POST(req: Request) {
   const rule = MEETING_RULES[meetingType as MeetingType];
   if (!rule) {
     return NextResponse.json({ error: 'Invalid meeting type.' }, { status: 400 });
+  }
+
+  if (meetingType === 'ORAL EXAM' && !(await isOralExamEnabled())) {
+    return NextResponse.json(
+      { error: 'Oral Exam bookings are currently disabled by the admin.' },
+      { status: 403 }
+    );
   }
 
   const client = await pool.connect();
@@ -119,6 +138,22 @@ export async function POST(req: Request) {
       );
     }
 
+    // A faculty member can't be in two meetings at once, even across
+    // different meeting types — check their own schedule directly.
+    const { rows: ownBookings } = await client.query(
+      `SELECT start_time, end_time FROM bookings
+       WHERE status != 'cancelled' AND LOWER(emp_email) = LOWER($1) AND date = $2`,
+      [session.user.email, slot.date]
+    );
+
+    if (conflictsWithOwnSchedule(meetingType, slot.start_time, ownBookings)) {
+      await client.query('ROLLBACK');
+      return NextResponse.json(
+        { error: 'You already have a meeting booked at this time. Please pick a different slot.' },
+        { status: 409 }
+      );
+    }
+
     const bookingResult = await client.query(
       `INSERT INTO bookings
         (slot_id, title, date, start_time, end_time, location, status,
@@ -141,7 +176,20 @@ export async function POST(req: Request) {
     );
 
     await client.query('COMMIT');
-    return NextResponse.json(bookingResult.rows[0], { status: 201 });
+
+    const booking = bookingResult.rows[0];
+    notifyAdminOfNewBooking({
+      facultyEmail: session.user.email.toLowerCase(),
+      facultyName: empName,
+      meetingType,
+      date: new Date(slot.date).toISOString().split('T')[0],
+      startTime: (slot.start_time as string).slice(0, 5),
+      endTime: (slot.end_time as string).slice(0, 5),
+      scholarName,
+      scholarId,
+    }).catch((err) => console.error('Failed to send admin notification email', err));
+
+    return NextResponse.json(booking, { status: 201 });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Booking failed', err);

@@ -10,6 +10,8 @@
 export const ALLOWED_EMAILS: string[] = [
     'hparveensultana@vit.ac.in',
     'rajkumars@vit.ac.in',
+    'vidhiprashant.j2023@vitstudent.ac.in',
+    'aanthoniraj@vit.ac.in',
 ];
 
 /**

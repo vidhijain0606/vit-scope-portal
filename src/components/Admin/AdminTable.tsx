@@ -165,6 +165,7 @@ const AdminTable = () => {
     };
 
     const sortedRows = getSortedRows();
+    const todayStr = new Date().toISOString().split('T')[0];
 
     return (
         <div className={styles.tableCard}>
@@ -227,9 +228,15 @@ const AdminTable = () => {
                                     </div>
                                 </td>
                                 <td>
-                                    <span className={`${styles.statusBadge} ${styles[row.status.toLowerCase()]}`}>
-                                        • {row.status}
-                                    </span>
+                                    {(row.rawDate || '') < todayStr ? (
+                                        <span className={styles.statusBadge} style={{ background: '#e5e7eb', color: '#4b5563' }}>
+                                            • {row.status} &amp; Completed
+                                        </span>
+                                    ) : (
+                                        <span className={`${styles.statusBadge} ${styles[row.status.toLowerCase()]}`}>
+                                            • {row.status}
+                                        </span>
+                                    )}
                                 </td>
                                 <td>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

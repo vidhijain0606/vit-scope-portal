@@ -1,7 +1,16 @@
 :root {
-  /* Brand Colors */
-  --primary-color: #0d6efd; /* VIT Blue */
-  --primary-hover: #0b5ed7;
+  /* This portal is light-themed only. Declaring color-scheme explicitly
+     stops browsers/OS "force dark mode" from auto-inverting our colors
+     (which is a different mechanism than @media (prefers-color-scheme)
+     and otherwise can't be overridden from CSS media queries at all). */
+  color-scheme: light;
+
+  /* Brand Colors — trust/dependability palette for high-stakes scheduling */
+  --primary-color: #2563eb; /* Royal Blue */
+  --primary-hover: #1d4ed8;
+  --navy-color: #0f172a; /* Deep Navy — headings/emphasis */
+  --accent-color: #0d9488; /* Vibrant Teal — CTAs */
+  --accent-hover: #0b7a70;
   --secondary-color: #6c757d;
   --success-color: #198754;
   --danger-color: #dc3545;
@@ -9,12 +18,12 @@
   --info-color: #0dcaf0;
 
   /* Backgrounds */
-  --bg-body: #f4f7fa; /* Light grey background from screenshots */
+  --bg-body: #f8fafc; /* Light Slate Gray */
   --bg-white: #ffffff;
   --bg-sidebar: #ffffff;
-  
+
   /* Text */
-  --text-primary: #212529;
+  --text-primary: #0f172a; /* Deep Navy */
   --text-secondary: #6c757d;
   --text-light: #f8f9fa;
 

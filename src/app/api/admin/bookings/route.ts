@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { pool } from '@/lib/db';
+import { notifyFacultyOfConfirmation } from '@/lib/mail';
 
 async function requireAdmin() {
   const session = await auth();
@@ -34,7 +35,22 @@ export async function PATCH(req: Request) {
   if (rows.length === 0) {
     return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
   }
-  return NextResponse.json(rows[0]);
+
+  const booking = rows[0];
+  if (status === 'confirmed' && booking.emp_email) {
+    notifyFacultyOfConfirmation({
+      facultyEmail: booking.emp_email,
+      facultyName: booking.emp_name,
+      meetingType: booking.meeting_type || booking.title,
+      date: new Date(booking.date).toISOString().split('T')[0],
+      startTime: (booking.start_time as string).slice(0, 5),
+      endTime: (booking.end_time as string).slice(0, 5),
+      scholarName: booking.scholar_name,
+      scholarId: booking.scholar_id,
+    }).catch((err) => console.error('Failed to send faculty confirmation email', err));
+  }
+
+  return NextResponse.json(booking);
 }
 
 export async function DELETE(req: Request) {

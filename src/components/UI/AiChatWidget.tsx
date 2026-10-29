@@ -11,7 +11,7 @@ export default function AiChatWidget() {
     const [open, setOpen] = useState(false);
     const [input, setInput] = useState('');
     const [history, setHistory] = useState<ChatEntry[]>([
-        { role: 'assistant', content: 'Hi! I can help you with booking slots, meeting-type rules, or finding your bookings. Ask me anything.' },
+        { role: 'assistant', content: 'Hi! I can help you with booking slots, meeting-type rules, or finding your bookings. Try asking "suggest a DC MEETING slot". Admins can type commands like "add slot 2026-10-20 10:00-11:00".' },
     ]);
     const [loading, setLoading] = useState(false);
 

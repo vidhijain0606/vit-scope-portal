@@ -5,6 +5,8 @@ import BookingCard, { BookingCardProps } from './BookingCard'; // Import interfa
 import { useSession, signOut } from 'next-auth/react';
 import { checkAccess } from '@/utils/accessControl';
 import AlertModal from '../UI/AlertModal';
+import MyBookingsCalendar from './MyBookingsCalendar';
+import { List, CalendarDays } from 'lucide-react';
 
 interface BookingRow {
     id: string;
@@ -51,6 +53,7 @@ const DashboardView = () => {
 
     const [meetingTypeFilter, setMeetingTypeFilter] = useState<string>('All');
     const [statusFilter, setStatusFilter] = useState<string>('All');
+    const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
     // ... (keep existing getUser effect)
 
@@ -134,20 +137,17 @@ const DashboardView = () => {
         const isCancelled = booking.status === 'cancelled';
 
         // 1. Tab Filter
+        let matchesTab: boolean;
         if (activeTab === 'upcoming') {
-            // Future dates AND not cancelled
-            // Also include today
-            if (isCancelled) return false;
-            return !isPast; // Date >= Today
-        }
-        else if (activeTab === 'completed') {
+            // Future dates AND not cancelled (also includes today)
+            matchesTab = !isCancelled && !isPast;
+        } else if (activeTab === 'completed') {
             // Past dates OR explicitly completed status
-            if (isCancelled) return false;
-            return isPast || booking.status === 'completed';
+            matchesTab = !isCancelled && (isPast || booking.status === 'completed');
+        } else {
+            matchesTab = isCancelled;
         }
-        else if (activeTab === 'cancelled') {
-            return isCancelled;
-        }
+        if (!matchesTab) return false;
 
         // 2. Meeting Type Filter
         if (meetingTypeFilter !== 'All' && booking.title !== meetingTypeFilter) return false;
@@ -188,6 +188,37 @@ const DashboardView = () => {
                 <h1 className={styles.pageTitle}>My Booked Slots</h1>
                 <p className={styles.pageSubtitle}>Manage your upcoming and past research appointments.</p>
             </header>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginBottom: '1rem' }}>
+                <button
+                    onClick={() => setViewMode('list')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.8rem', borderRadius: '8px',
+                        border: '1px solid #d1d5db', fontSize: '0.85rem', fontWeight: 600,
+                        background: viewMode === 'list' ? '#2563eb' : '#fff',
+                        color: viewMode === 'list' ? '#fff' : '#374151',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <List size={15} /> List
+                </button>
+                <button
+                    onClick={() => setViewMode('calendar')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.8rem', borderRadius: '8px',
+                        border: '1px solid #d1d5db', fontSize: '0.85rem', fontWeight: 600,
+                        background: viewMode === 'calendar' ? '#2563eb' : '#fff',
+                        color: viewMode === 'calendar' ? '#fff' : '#374151',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <CalendarDays size={15} /> Calendar
+                </button>
+            </div>
+
+            {viewMode === 'calendar' ? <MyBookingsCalendar /> : <>
 
             <div className={styles.controls}>
                 <div className={styles.tabs}>
@@ -250,6 +281,7 @@ const DashboardView = () => {
                     </div>
                 )}
             </div>
+            </>}
         </div>
     );
 }

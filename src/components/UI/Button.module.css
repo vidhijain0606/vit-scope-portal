@@ -44,6 +44,15 @@
     background-color: var(--primary-hover);
 }
 
+.accent {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.accent:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+}
+
 .secondary {
     background-color: var(--secondary-color);
     color: white;
