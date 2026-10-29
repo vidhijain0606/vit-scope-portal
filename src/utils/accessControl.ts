@@ -5,13 +5,13 @@
  * Use this to implement the CSV allowlist logic in the future.
  */
 
-// 1. Domain Restriction
-export const ALLOWED_DOMAINS = ['vit.ac.in'];
-
-// 2. Allowlist (Placeholder for CSV feature) & Test Accounts
+// Restricted allowlist: only these faculty emails may access the portal.
+// A secretary account will be added to this list later.
 export const ALLOWED_EMAILS: string[] = [
+    'hparveensultana@vit.ac.in',
+    'rajkumars@vit.ac.in',
     'vidhiprashant.j2023@vitstudent.ac.in',
-    'VIDHIJ0606@GMAIL.COM', // Note: Case sensitive check might fail, so we should lowercase in logic
+    'aanthoniraj@vit.ac.in',
 ];
 
 /**
@@ -24,18 +24,9 @@ export const checkAccess = (email: string | undefined | null): { isAllowed: bool
 
     const lowerEmail = email.toLowerCase();
 
-    // 0. Check Specific Allowlist First (Bypass domain check)
     if (ALLOWED_EMAILS.map(e => e.toLowerCase()).includes(lowerEmail)) {
         return { isAllowed: true };
     }
 
-    // 1. Check Domain (DISABLED as per request)
-    // const domain = lowerEmail.split('@')[1];
-    // if (!ALLOWED_DOMAINS.includes(domain)) {
-    //     return { isAllowed: false, reason: 'Only vit.ac.in emails are allowed.' };
-    // }
-
-    return { isAllowed: true };
-
-    return { isAllowed: true };
+    return { isAllowed: false, reason: 'Access is restricted to authorized faculty accounts.' };
 };

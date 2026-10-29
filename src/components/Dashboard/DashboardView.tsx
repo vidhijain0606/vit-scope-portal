@@ -2,12 +2,28 @@
 import React, { useState } from 'react';
 import styles from './DashboardView.module.css';
 import BookingCard, { BookingCardProps } from './BookingCard'; // Import interface
-import { supabase } from '@/utils/supabase';
+import { useSession, signOut } from 'next-auth/react';
 import { checkAccess } from '@/utils/accessControl';
 import AlertModal from '../UI/AlertModal';
+import MyBookingsCalendar from './MyBookingsCalendar';
+import { List, CalendarDays } from 'lucide-react';
+
+interface BookingRow {
+    id: string;
+    slot_id: string;
+    title: string;
+    meeting_type: string | null;
+    date: string;
+    start_time: string;
+    end_time: string;
+    status: string;
+    scholar_name: string | null;
+    scholar_id: string | null;
+}
 
 const DashboardView = () => {
-    const [user, setUser] = React.useState<any>(null);
+    const { data: session } = useSession();
+    const user = session?.user ?? null;
     const [activeTab, setActiveTab] = React.useState<'upcoming' | 'completed' | 'cancelled'>('upcoming');
     // searchTerm state removed
     const [bookings, setBookings] = React.useState<BookingCardProps[]>([]);
@@ -18,98 +34,43 @@ const DashboardView = () => {
     });
 
     React.useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                // Access Control Check
-                const access = checkAccess(user.email);
-                if (!access.isAllowed) {
-                    setAlertData({
-                        isOpen: true,
-                        title: 'Access Restricted',
-                        message: access.reason || 'This portal is restricted to VIT Faculty only.',
-                        type: 'error'
-                    });
-                    // Will redirect after modal close
-                    return;
-                }
-                setUser(user);
-            } else {
-                // If no user, redirect to login or home
-                window.location.href = '/';
+        if (session === null) {
+            // No session resolved yet, or signed out — redirect.
+            return;
+        }
+        if (user?.email) {
+            const access = checkAccess(user.email);
+            if (!access.isAllowed) {
+                setAlertData({
+                    isOpen: true,
+                    title: 'Access Restricted',
+                    message: access.reason || 'This portal is restricted to VIT Faculty only.',
+                    type: 'error'
+                });
             }
-        };
-        getUser();
-    }, []);
+        }
+    }, [session, user?.email]);
 
     const [meetingTypeFilter, setMeetingTypeFilter] = useState<string>('All');
     const [statusFilter, setStatusFilter] = useState<string>('All');
+    const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
 
     // ... (keep existing getUser effect)
 
     React.useEffect(() => {
         const fetchBookings = async () => {
-            if (!user || !user.email) {
+            if (!user?.email) {
                 setLoading(false);
                 return;
             }
 
             setLoading(true);
 
-            const todayStr = new Date().toISOString().split('T')[0];
-
-            // 1. Try Authenticated Fetch
-            const { data: authData, error: authError } = await supabase
-                .from('bookings')
-                .select('*')
-                .ilike('emp_email', user.email)
-                // REMOVED: .gte('date', todayStr) -- We want ALL bookings now
-
-                // Sort: Latest booking (nearest date) to farthest
-                // Actually, for past meetings, we might want them descending?
-                // But user asked for "Latest booking to farther date". 
-                // Usually for upcoming: ASC (nearest first).
-                // For past: DESC (most recent first).
-                // Let's stick to simple ASC for now or generic sort.
-                // Or maybe just sort by date ascending overall.
-                .order('date', { ascending: true })
-                .order('start_time', { ascending: true });
-
-            let finalBookings = authData || [];
-
-            // 2. Fallback (Anon)
-            if (authError || !authData || authData.length === 0) {
-                // ... same fallback logic, removing .gte constraint ...
-                console.log('Auth fetch empty/failed, trying Anon fallback...');
-                try {
-                    const { createClient } = await import('@supabase/supabase-js');
-                    const { supabaseUrl, supabaseAnonKey } = await import('@/utils/supabase');
-                    const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
-                        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
-                    });
-
-                    const { data: anonData } = await anonClient
-                        .from('bookings')
-                        .select('*')
-                        // REMOVED .gte constraint
-                        .order('date', { ascending: true })
-                        .order('start_time', { ascending: true });
-
-                    if (anonData && anonData.length > 0) {
-                        const userEmailLower = user.email.toLowerCase();
-                        const fallbackMatches = anonData.filter((b: any) =>
-                            b.emp_email?.toLowerCase() === userEmailLower ||
-                            b.user_id === user.id
-                        );
-                        if (fallbackMatches.length > 0) finalBookings = fallbackMatches;
-                    }
-                } catch (err) {
-                    console.error('Fallback error', err);
-                }
-            }
+            const res = await fetch('/api/bookings');
+            const finalBookings: BookingRow[] = res.ok ? await res.json() : [];
 
             // Map to UI
-            const mapped = finalBookings.map((b: any) => ({
+            const mapped = finalBookings.map((b) => ({
                 id: b.id,
                 title: b.title,
                 meeting_type: b.meeting_type || b.title, // Ensure we have a filterable field
@@ -119,12 +80,11 @@ const DashboardView = () => {
                 },
                 dateStr: b.date, // Store purely for sorting if needed (already sorted by DB)
                 time: `${b.start_time} - ${b.end_time}`,
-                isOnline: b.is_online,
                 student: {
                     name: b.scholar_name || 'Unknown',
                     regNo: b.scholar_id || 'N/A'
                 },
-                status: b.status
+                status: (b.status || 'pending') as BookingCardProps['status']
             }));
 
             setBookings(mapped);
@@ -138,8 +98,7 @@ const DashboardView = () => {
         setAlertData(prev => ({ ...prev, isOpen: false }));
         // If it was an access error, sign out
         if (alertData.title === 'Access Restricted' || alertData.title.includes('Access Denied')) {
-            await supabase.auth.signOut();
-            window.location.href = '/';
+            await signOut({ callbackUrl: '/' });
         }
     };
 
@@ -147,45 +106,23 @@ const DashboardView = () => {
         if (!confirm('Are you sure you want to cancel this booking?')) return;
 
         try {
-            // 1. Get the booking details first to find the slot
-            const { data: bookingData, error: fetchError } = await supabase
-                .from('bookings')
-                .select('*')
-                .eq('id', bookingId)
-                .single();
+            const res = await fetch('/api/bookings', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookingId, action: 'cancel' }),
+            });
 
-            if (fetchError || !bookingData) throw new Error('Booking not found');
-
-            // 2. Update booking status to cancelled
-            const { error: updateBookingError } = await supabase
-                .from('bookings')
-                .update({ status: 'cancelled' })
-                .eq('id', bookingId);
-
-            if (updateBookingError) throw updateBookingError;
-
-            // 3. Make the slot available again
-            const dateStr = new Date(bookingData.date).toISOString().split('T')[0];
-
-            const { error: slotError } = await supabase
-                .from('slots')
-                .update({ is_available: true })
-                .eq('date', dateStr)
-                .eq('start_time', bookingData.start_time)
-                .eq('end_time', bookingData.end_time);
-
-            if (slotError) {
-                console.warn('Could not free up slot automatically', slotError);
+            if (!res.ok) {
+                const { error } = await res.json();
+                throw new Error(error || 'Failed to cancel booking');
             }
 
-            // 4. Update UI locally
             setBookings(prev => prev.map(b =>
                 b.id === bookingId ? { ...b, status: 'cancelled' } : b
             ));
 
             alert('Booking cancelled successfully.');
-
-        } catch (err: any) {
+        } catch (err) {
             console.error('Failed to cancel', err);
             alert('Failed to cancel booking.');
         }
@@ -196,24 +133,21 @@ const DashboardView = () => {
     const filteredBookings = bookings.filter(booking => {
         // Helper to check if date is past
         // booking.dateStr is YYYY-MM-DD
-        const isPast = booking.dateStr < todayStr;
+        const isPast = (booking.dateStr || '') < todayStr;
         const isCancelled = booking.status === 'cancelled';
 
         // 1. Tab Filter
+        let matchesTab: boolean;
         if (activeTab === 'upcoming') {
-            // Future dates AND not cancelled
-            // Also include today
-            if (isCancelled) return false;
-            return !isPast; // Date >= Today
-        }
-        else if (activeTab === 'completed') {
+            // Future dates AND not cancelled (also includes today)
+            matchesTab = !isCancelled && !isPast;
+        } else if (activeTab === 'completed') {
             // Past dates OR explicitly completed status
-            if (isCancelled) return false;
-            return isPast || booking.status === 'completed';
+            matchesTab = !isCancelled && (isPast || booking.status === 'completed');
+        } else {
+            matchesTab = isCancelled;
         }
-        else if (activeTab === 'cancelled') {
-            return isCancelled;
-        }
+        if (!matchesTab) return false;
 
         // 2. Meeting Type Filter
         if (meetingTypeFilter !== 'All' && booking.title !== meetingTypeFilter) return false;
@@ -227,7 +161,7 @@ const DashboardView = () => {
     // Helper for counts
     const getTabCount = (tab: string) => {
         return bookings.filter(b => {
-            const isPast = b.dateStr < todayStr;
+            const isPast = (b.dateStr || '') < todayStr;
             const isCancelled = b.status === 'cancelled';
             if (tab === 'upcoming') return !isPast && !isCancelled;
             if (tab === 'completed') return (isPast || b.status === 'completed') && !isCancelled;
@@ -254,6 +188,37 @@ const DashboardView = () => {
                 <h1 className={styles.pageTitle}>My Booked Slots</h1>
                 <p className={styles.pageSubtitle}>Manage your upcoming and past research appointments.</p>
             </header>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginBottom: '1rem' }}>
+                <button
+                    onClick={() => setViewMode('list')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.8rem', borderRadius: '8px',
+                        border: '1px solid #d1d5db', fontSize: '0.85rem', fontWeight: 600,
+                        background: viewMode === 'list' ? '#2563eb' : '#fff',
+                        color: viewMode === 'list' ? '#fff' : '#374151',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <List size={15} /> List
+                </button>
+                <button
+                    onClick={() => setViewMode('calendar')}
+                    style={{
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                        padding: '0.4rem 0.8rem', borderRadius: '8px',
+                        border: '1px solid #d1d5db', fontSize: '0.85rem', fontWeight: 600,
+                        background: viewMode === 'calendar' ? '#2563eb' : '#fff',
+                        color: viewMode === 'calendar' ? '#fff' : '#374151',
+                        cursor: 'pointer',
+                    }}
+                >
+                    <CalendarDays size={15} /> Calendar
+                </button>
+            </div>
+
+            {viewMode === 'calendar' ? <MyBookingsCalendar /> : <>
 
             <div className={styles.controls}>
                 <div className={styles.tabs}>
@@ -316,6 +281,7 @@ const DashboardView = () => {
                     </div>
                 )}
             </div>
+            </>}
         </div>
     );
 }

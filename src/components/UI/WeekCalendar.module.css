@@ -1,0 +1,333 @@
+.wrapper {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 1.25rem;
+    overflow-x: auto;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navBtn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    color: #374151;
+}
+
+.navBtn:hover {
+    background: #f3f4f6;
+}
+
+.rangeLabel {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #111827;
+    margin: 0 0.25rem;
+}
+
+.todayBtn {
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #f9fafb;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #374151;
+}
+
+.todayCount {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.todayCount strong {
+    color: #111827;
+}
+
+.legend {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.legendDot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.legendDot.available { background: #3b82f6; }
+.legendDot.pending { background: #f59e0b; }
+.legendDot.confirmed { background: #16a34a; }
+.legendDot.cancelled { background: #ef4444; }
+
+.grid {
+    display: grid;
+    min-width: 760px;
+}
+
+.cornerCell {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dayHeader {
+    text-align: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    border-left: 1px solid #f1f5f9;
+}
+
+.dayName {
+    font-size: 0.72rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.dayNum {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.todayHeader .dayNum {
+    color: #2563eb;
+}
+
+.timeColumn {
+    position: relative;
+}
+
+.timeLabel {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-align: right;
+    padding-right: 0.5rem;
+    transform: translateY(-0.5em);
+}
+
+.dayColumn {
+    position: relative;
+    border-left: 1px solid #f1f5f9;
+}
+
+.hourCell {
+    border-bottom: 1px dashed #f1f5f9;
+}
+
+.event {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    border-radius: 8px;
+    border: none;
+    border-left: 4px solid;
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    font-family: inherit;
+    overflow: hidden;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.event.clickable {
+    cursor: pointer;
+}
+
+.event.clickable:hover {
+    filter: brightness(0.97);
+    transform: translateY(-1px);
+}
+
+.eventTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.eventTime {
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.eventTitle {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #0f172a;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+}
+
+.eventSubtitle {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Solid, high-contrast pill: always white text on a saturated status
+   color, so it reads clearly regardless of the card's tint or theme. */
+.statusBadge {
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 1px;
+    padding: 0.08rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: white;
+}
+
+.badge-available, .badge-selected { background: #1d4ed8; }
+.badge-pending { background: #b45309; }
+.badge-confirmed { background: #15803d; }
+.badge-cancelled { background: #b91c1c; }
+
+.event.available {
+    background: #eff6ff;
+    border-left-color: #3b82f6;
+}
+
+.event.selected {
+    background: #dbeafe;
+    border-left-color: #2563eb;
+    box-shadow: 0 0 0 2px #2563eb inset;
+}
+
+.event.pending {
+    background: #fef3c7;
+    border-left-color: #f59e0b;
+}
+
+.event.confirmed {
+    background: #dcfce7;
+    border-left-color: #16a34a;
+}
+
+.event.cancelled {
+    background: #fee2e2;
+    border-left-color: #ef4444;
+}
+
+.event.cancelled .eventTitle {
+    text-decoration: line-through;
+}
+
+.agenda {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.agendaDay {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.agendaDayHeader {
+    padding: 0.6rem 0.9rem;
+    background: #f9fafb;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #111827;
+}
+
+.agendaDayHeader.todayHeader {
+    color: #2563eb;
+}
+
+.agendaEmpty {
+    padding: 0.9rem;
+    color: #9ca3af;
+    font-size: 0.85rem;
+}
+
+.agendaEvent {
+    display: block;
+    width: 100%;
+    min-height: 48px;
+    text-align: left;
+    border: none;
+    border-top: 1px solid #f1f5f9;
+    border-left: 4px solid;
+    padding: 0.6rem 0.9rem;
+    font-family: inherit;
+    cursor: default;
+}
+
+.agendaEvent.clickable {
+    cursor: pointer;
+}
+
+.agendaEventTime {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 0.1rem;
+}
+
+.agendaEvent.available { background: #eff6ff; border-left-color: #3b82f6; }
+.agendaEvent.selected { background: #dbeafe; border-left-color: #2563eb; }
+.agendaEvent.pending { background: #fef3c7; border-left-color: #f59e0b; }
+.agendaEvent.confirmed { background: #dcfce7; border-left-color: #16a34a; }
+.agendaEvent.cancelled { background: #fee2e2; border-left-color: #ef4444; }
+.agendaEvent.cancelled .eventTitle { text-decoration: line-through; }
+
+@media (max-width: 720px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .navBtn, .todayBtn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* This calendar is intentionally always light-themed — no dark-mode
+   variant — so event text and status colors stay reliably readable
+   regardless of the visitor's system theme. */

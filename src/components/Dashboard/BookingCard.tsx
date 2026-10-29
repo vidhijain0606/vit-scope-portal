@@ -24,8 +24,12 @@ const BookingCard: React.FC<BookingCardProps> = ({
     isOnline,
     student,
     status,
-    onCancel
+    onCancel,
+    dateStr,
 }) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const isPast = !!dateStr && dateStr < todayStr;
+
     return (
         <div className={styles.card}>
             {/* Col 1: infoGroup (Date + Details) */}
@@ -53,28 +57,46 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
             {/* Col 2: statusGroup (Middle) */}
             <div className={styles.statusGroup}>
-                {['upcoming', 'pending'].includes(status) && (
-                    <span className={styles.pendingBadge}>Waiting for Dean's Confirmation...</span>
-                )}
-
-                {status === 'confirmed' && (
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        onClick={() => {
-                            if (window.confirm("You are being redirected to VTOP to complete the booking. Continue?")) {
-                                window.open('https://vtop.vit.ac.in', '_blank');
-                            }
+                {isPast ? (
+                    <span
+                        style={{
+                            background: '#e5e7eb',
+                            color: '#4b5563',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '999px',
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            textTransform: 'capitalize',
                         }}
                     >
-                        Go to VTOP <ExternalLink size={14} style={{ marginLeft: '4px' }} />
-                    </Button>
+                        {status} &amp; Completed
+                    </span>
+                ) : (
+                    <>
+                        {['upcoming', 'pending'].includes(status) && (
+                            <span className={styles.pendingBadge}>Waiting for Dean's Confirmation...</span>
+                        )}
+
+                        {status === 'confirmed' && (
+                            <Button
+                                variant="primary"
+                                size="sm"
+                                onClick={() => {
+                                    if (window.confirm("You are being redirected to VTOP to complete the booking. Continue?")) {
+                                        window.open('https://vtop.vit.ac.in', '_blank');
+                                    }
+                                }}
+                            >
+                                Go to VTOP <ExternalLink size={14} style={{ marginLeft: '4px' }} />
+                            </Button>
+                        )}
+                    </>
                 )}
             </div>
 
             {/* Col 3: actionGroup (Right - Cancel) */}
             <div className={styles.actionGroup}>
-                {(status === 'upcoming' || status === 'confirmed') && onCancel && (
+                {!isPast && (status === 'upcoming' || status === 'confirmed') && onCancel && (
                     <button
                         className={styles.cancelLink}
                         onClick={() => onCancel(id)}
@@ -83,7 +105,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                     </button>
                 )}
                 {/* Join Meeting button hidden as mainly offline focus, or user said "cancel button is lost" */}
-                {isOnline && status === 'upcoming' && (
+                {!isPast && isOnline && status === 'upcoming' && (
                     <Button variant="primary" size="sm">Join</Button>
                 )}
             </div>

@@ -1,13 +1,20 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import styles from './styles.module.css';
-import { supabase } from '@/utils/supabase';
 import { FolderOpen, FileText, ArrowRight } from 'lucide-react';
 import DocumentViewerModal from '@/components/UI/DocumentViewerModal';
 
+interface Doc {
+    id: string;
+    title: string;
+    description: string | null;
+    blob_url: string;
+}
+
 export default function FacultyDocumentsPage() {
-    const [documents, setDocuments] = useState<any[]>([]);
+    const [documents, setDocuments] = useState<Doc[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null);
 
     useEffect(() => {
         fetchDocuments();
@@ -15,16 +22,12 @@ export default function FacultyDocumentsPage() {
 
     const fetchDocuments = async () => {
         setLoading(true);
-        const { data } = await supabase
-            .from('documents')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (data) setDocuments(data);
+        const res = await fetch('/api/documents');
+        if (res.ok) setDocuments(await res.json());
         setLoading(false);
     };
 
-    const handleViewDocument = (doc: any) => {
+    const handleViewDocument = (doc: Doc) => {
         setSelectedDoc(doc);
     };
 
@@ -39,8 +42,8 @@ export default function FacultyDocumentsPage() {
                     isOpen={!!selectedDoc}
                     onClose={handleCloseModal}
                     title={selectedDoc.title}
-                    fileUrl={selectedDoc.file_url}
-                    isOffice={!!selectedDoc.file_url.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i)}
+                    fileUrl={selectedDoc.blob_url}
+                    isOffice={!!selectedDoc.blob_url.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i)}
                 />
             )}
             <header className={styles.header}>

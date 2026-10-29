@@ -45,6 +45,10 @@ const Sidebar = () => {
                             <Clock size={20} className={styles.icon} />
                             Add Slots
                         </Link>
+                        <Link href="/admin/calendar" className={`${styles.navItem} ${isActive('/admin/calendar')}`}>
+                            <Calendar size={20} className={styles.icon} />
+                            Calendar
+                        </Link>
                         <Link href="/admin/documents" className={`${styles.navItem} ${isActive('/admin/documents')}`}>
                             <FileUp size={20} className={styles.icon} />
                             Documents (Upload)

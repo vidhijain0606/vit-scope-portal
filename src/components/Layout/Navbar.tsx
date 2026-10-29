@@ -6,48 +6,23 @@ import { usePathname, useRouter } from 'next/navigation';
 import styles from './Navbar.module.css';
 import Button from '../UI/Button';
 
-import { supabase } from '@/utils/supabase';
+import { useSession, signOut } from 'next-auth/react';
 
 const Navbar = () => {
     const pathname = usePathname();
     const router = useRouter();
+    const { data: session } = useSession();
 
     const isActive = (path: string) => {
         return pathname === path ? styles.active : '';
     };
 
-    const [avatarUrl, setAvatarUrl] = React.useState('https://ui-avatars.com/api/?name=User&background=0D8ABC&color=fff');
-
-    React.useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                // Use Google avatar if available, otherwise generated initials
-                const picture = user.user_metadata?.avatar_url;
-                const name = user.user_metadata?.full_name || user.email || 'User';
-
-                if (picture) {
-                    setAvatarUrl(picture);
-                } else {
-                    setAvatarUrl(`https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=128`);
-                }
-            }
-        };
-        getUser();
-    }, []);
+    const name = session?.user?.name || session?.user?.email || 'User';
+    const avatarUrl = session?.user?.image
+        || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0D8ABC&color=fff&size=128`;
 
     const handleLogout = async () => {
-        try {
-            // Perform sign out
-            const { error } = await supabase.auth.signOut();
-            if (error) console.error('Error logging out:', error);
-
-            // Hard redirect to clear any state
-            window.location.href = '/';
-        } catch (error) {
-            console.error('Unexpected error logging out:', error);
-            window.location.href = '/';
-        }
+        await signOut({ callbackUrl: '/' });
     };
 
     return (

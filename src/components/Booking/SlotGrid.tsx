@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Check, Clock } from 'lucide-react';
 import styles from './SlotGrid.module.css';
-import { supabase } from '@/utils/supabase';
 
 interface Slot {
     id: string;
-    date: string; // Add date
+    date: string;
     startTime: string;
     endTime: string;
     duration: string;
@@ -14,30 +13,23 @@ interface Slot {
 }
 
 interface SlotGridProps {
+    meetingType: string;
     selectedSlotId: string | null;
     onSlotSelect: (id: string, date: string, start: string, end: string) => void;
 }
 
-const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => {
+const SlotGrid: React.FC<SlotGridProps> = ({ meetingType, selectedSlotId, onSlotSelect }) => {
     const [slots, setSlots] = useState<Slot[]>([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchSlots = async () => {
             setLoading(true);
-            const todayStr = new Date().toISOString().split('T')[0];
+            const res = await fetch(`/api/slots?meetingType=${encodeURIComponent(meetingType)}`);
+            const data = res.ok ? await res.json() : null;
 
-            const { data, error } = await supabase
-                .from('slots')
-                .select('*')
-                // Filter: Date must be today or in the future
-                .gte('date', todayStr)
-                .eq('is_available', true)
-                .order('date', { ascending: true })
-                .order('start_time', { ascending: true });
-
-            if (data && !error) {
-                const mapped: Slot[] = data.map(s => {
+            if (data) {
+                const mapped: Slot[] = data.map((s: { id: string; date: string; start_time: string; end_time: string; is_available: boolean }) => {
                     const start = new Date(`2000-01-01 ${s.start_time}`);
                     const end = new Date(`2000-01-01 ${s.end_time}`);
                     const diffMins = (end.getTime() - start.getTime()) / 60000;
@@ -45,7 +37,7 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
 
                     return {
                         id: s.id,
-                        date: s.date, // Add date to slot object
+                        date: s.date,
                         startTime: s.start_time,
                         endTime: s.end_time,
                         duration: duration,
@@ -60,8 +52,8 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
             setLoading(false);
         };
 
-        fetchSlots();
-    }, []);
+        if (meetingType) fetchSlots();
+    }, [meetingType]);
 
     // Group slots by date
     const groupedSlots = slots.reduce((acc, slot) => {
@@ -75,8 +67,7 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
             {loading ? <div style={{ width: '100%', textAlign: 'center', padding: '2rem' }}>Loading available slots...</div> :
                 Object.keys(groupedSlots).length === 0 ? (
                     <div className={styles.emptyState}>
-                        <p>No available slots found for the upcoming dates.</p>
-                        {/* Manual creation disabled */}
+                        <p>No available slots found for {meetingType} in the upcoming dates.</p>
                     </div>
                 ) :
                     Object.entries(groupedSlots).map(([date, dateSlots]) => (
@@ -89,12 +80,11 @@ const SlotGrid: React.FC<SlotGridProps> = ({ selectedSlotId, onSlotSelect }) => 
                                     <button
                                         key={slot.id}
                                         className={`
-                                  ${styles.slot} 
+                                  ${styles.slot}
                                   ${selectedSlotId === slot.id ? styles.selected : ''}
                                 `}
                                         onClick={() => {
                                             onSlotSelect(slot.id, slot.date, slot.startTime, slot.endTime);
-                                            // Scroll to sidebar on select
                                             setTimeout(() => {
                                                 const sidebar = document.getElementById('booking-sidebar');
                                                 if (sidebar) sidebar.scrollIntoView({ behavior: 'smooth', block: 'start' });

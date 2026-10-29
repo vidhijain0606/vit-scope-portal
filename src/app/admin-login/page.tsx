@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import styles from './AdminLogin.module.css';
 import Button from '@/components/UI/Button';
 
 export default function AdminLoginPage() {
-    const router = useRouter();
     const [credentials, setCredentials] = useState({ id: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -17,19 +16,24 @@ export default function AdminLoginPage() {
         setError('');
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        setTimeout(() => {
-            if (credentials.id === 'admin' && credentials.password === 'admin123') {
-                localStorage.setItem('admin_verified', 'true');
-                router.push('/admin/dashboard');
-            } else {
-                setError('Invalid Admin ID or Password. Access Restricted.');
-                setLoading(false);
-            }
-        }, 800);
+        const result = await signIn('admin', {
+            username: credentials.id,
+            password: credentials.password,
+            redirect: false,
+        });
+
+        if (result?.ok) {
+            // Hard navigation so AdminGuard reads a freshly-synced session
+            // instead of a stale client-side cache from before sign-in.
+            window.location.href = '/admin/dashboard';
+        } else {
+            setError('Invalid Admin ID or Password. Access Restricted.');
+            setLoading(false);
+        }
     };
 
     return (

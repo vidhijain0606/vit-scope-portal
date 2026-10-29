@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import styles from './AddStocks.module.css';
 import Button from '@/components/UI/Button';
-import { supabase } from '@/utils/supabase';
 
 export default function AddStocksPage() {
     const [itemName, setItemName] = useState('');
@@ -23,20 +22,20 @@ export default function AddStocksPage() {
         }
 
         try {
-            const { error } = await supabase
-                .from('stocks')
-                .insert([
-                    { item_name: itemName, quantity: parseInt(quantity), category, status: 'In Stock' }
-                ]);
+            const res = await fetch('/api/stocks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ item_name: itemName, quantity: parseInt(quantity), category }),
+            });
 
-            if (error) throw error;
+            if (!res.ok) throw new Error('Request failed');
 
             setMessage({ type: 'success', text: 'Stock added successfully!' });
             setItemName('');
             setQuantity('');
         } catch (err) {
             console.error('Error adding stock:', err);
-            setMessage({ type: 'error', text: 'Failed to add stock. Did you run the schema.sql?' });
+            setMessage({ type: 'error', text: 'Failed to add stock.' });
         } finally {
             setLoading(false);
         }
