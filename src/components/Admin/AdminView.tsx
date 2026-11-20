@@ -3,7 +3,7 @@ import { CalendarRange, CheckCircle, XCircle, GraduationCap } from 'lucide-react
 import styles from './AdminView.module.css';
 import StatCard from './StatCard';
 import AdminTable from './AdminTable';
-import OralExamToggle from './OralExamToggle';
+import AllowedEmailsManager from './AllowedEmailsManager';
 
 export default function AdminView() {
     const [stats, setStats] = useState({
@@ -57,7 +57,7 @@ export default function AdminView() {
                 />
             </div>
 
-            <OralExamToggle />
+            <AllowedEmailsManager />
 
             <AdminTable />
         </div>

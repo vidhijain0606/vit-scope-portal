@@ -4,11 +4,17 @@ import { pool } from '@/lib/db';
 import { azureChat } from '@/lib/azureAi';
 import { MEETING_RULES, MeetingType, conflictsWithExisting, conflictsWithOwnSchedule, groupFor, dropPastSlotsToday } from '@/utils/meetingRules';
 import { isOralExamEnabled } from '@/lib/settings';
+import { checkRateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.email) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Per-account AI call limiting (VAPT-17), matching /api/ai/chat.
+  if (!checkRateLimit(`ai-suggest-slot:${session.user.email}`, 20, 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a moment and try again.' }, { status: 429 });
   }
 
   const { meetingType } = await req.json();

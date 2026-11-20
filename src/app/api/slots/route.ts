@@ -5,6 +5,15 @@ import { MEETING_RULES, MeetingType, conflictsWithExisting, conflictsWithOwnSche
 import { isOralExamEnabled } from '@/lib/settings';
 
 export async function GET(req: Request) {
+  // This endpoint returns the institution's live meeting schedule; it must
+  // not be enumerable by an unauthenticated caller (VAPT-08). Note this
+  // route is not covered by middleware.ts's matcher (that only guards page
+  // routes), so this check is the actual enforcement point.
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const all = searchParams.get('all') === 'true';
   const meetingType = searchParams.get('meetingType');
@@ -49,7 +58,6 @@ export async function GET(req: Request) {
   // type, so we never show them a slot that overlaps a meeting they're
   // already in — a faculty member can't be in two places at once, even if
   // the two meeting types aren't in the same exclusivity group.
-  const session = await auth();
   const ownEmail = session?.user?.email?.toLowerCase();
   let ownBookings: { date: string; start_time: string; end_time: string }[] = [];
   if (ownEmail) {
@@ -98,6 +106,17 @@ export async function POST(req: Request) {
   };
   if (!Array.isArray(slots) || slots.length === 0) {
     return NextResponse.json({ error: 'No slots provided' }, { status: 400 });
+  }
+
+  // No meetings on Sundays — this is the authoritative check; the admin UI
+  // also disables Sunday in its date picker, but that alone can be bypassed
+  // by a direct API call.
+  const sundaySlot = slots.find((s) => new Date(`${s.date}T00:00:00`).getDay() === 0);
+  if (sundaySlot) {
+    return NextResponse.json(
+      { error: `${sundaySlot.date} is a Sunday. Meetings cannot be scheduled on Sundays.` },
+      { status: 400 }
+    );
   }
 
   const client = await pool.connect();

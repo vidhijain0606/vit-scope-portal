@@ -20,7 +20,11 @@ export function getContainerClient() {
 // so a bare blob URL 404s with PublicAccessNotPermitted. Instead, sign a
 // short-lived read-only SAS token per request so links work without
 // exposing the container publicly or baking a long-lived secret into the DB.
-export function getReadSasUrl(blobUrl: string, expiresInMinutes = 60): string {
+// 15 minutes, not 60: these URLs are forwarded to docs.google.com/viewer for
+// Office-format previews, so the window a leaked/logged URL stays valid for
+// is kept to the minimum that still comfortably covers a user opening and
+// viewing a document (VAPT-07).
+export function getReadSasUrl(blobUrl: string, expiresInMinutes = 15): string {
   const container = getContainerClient();
   const credential = container.credential as StorageSharedKeyCredential;
 

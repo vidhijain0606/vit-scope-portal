@@ -1,30 +1,29 @@
+import { pool } from '@/lib/db';
+
 /**
  * Access Control Utility
- * 
- * This file handles permissions for accessing the portal.
- * Use this to implement the CSV allowlist logic in the future.
+ *
+ * Determines which faculty emails are allowed to sign in. The allowlist
+ * lives in the `allowed_emails` database table (managed by the admin via
+ * /admin/add-slots), not hardcoded in source (VAPT-15) — a plaintext list
+ * of real people's emails in source control is itself a PII exposure, and
+ * every access change previously required a code change and redeploy.
+ *
+ * Server-only: this queries `pool` directly, so it must only be imported
+ * from server code (route handlers, server components, auth callbacks),
+ * never from a client component.
  */
-
-// Restricted allowlist: only these faculty emails may access the portal.
-// A secretary account will be added to this list later.
-export const ALLOWED_EMAILS: string[] = [
-    'hparveensultana@vit.ac.in',
-    'rajkumars@vit.ac.in',
-    'vidhiprashant.j2023@vitstudent.ac.in',
-    'aanthoniraj@vit.ac.in',
-];
-
-/**
- * Checks if a user is allowed to access the portal.
- * @param email User's email address
- * @returns { isAllowed: boolean, reason?: string }
- */
-export const checkAccess = (email: string | undefined | null): { isAllowed: boolean, reason?: string } => {
+export const checkAccess = async (
+    email: string | undefined | null
+): Promise<{ isAllowed: boolean; reason?: string }> => {
     if (!email) return { isAllowed: false, reason: 'No email provided.' };
 
-    const lowerEmail = email.toLowerCase();
+    const { rows } = await pool.query(
+        'SELECT 1 FROM allowed_emails WHERE LOWER(email) = LOWER($1)',
+        [email]
+    );
 
-    if (ALLOWED_EMAILS.map(e => e.toLowerCase()).includes(lowerEmail)) {
+    if (rows.length > 0) {
         return { isAllowed: true };
     }
 

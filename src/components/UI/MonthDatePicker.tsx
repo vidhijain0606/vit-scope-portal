@@ -70,6 +70,10 @@ export default function MonthDatePicker({ value, onChange, minDate }: MonthDateP
 
     const selectDate = (d: Date) => {
         if (d < min) return;
+        if (d.getDay() === 0) {
+            alert('Meetings cannot be scheduled on Sundays. Please choose a different date.');
+            return;
+        }
         onChange(fmt(d));
         setViewMonth(d);
     };
@@ -84,7 +88,7 @@ export default function MonthDatePicker({ value, onChange, minDate }: MonthDateP
                         key={q.label}
                         className={`${styles.quickItem} ${value === fmt(q.date) ? styles.quickItemActive : ''}`}
                         onClick={() => selectDate(q.date)}
-                        disabled={q.date < min}
+                        disabled={q.date < min || q.date.getDay() === 0}
                     >
                         {q.label}
                     </button>
@@ -111,7 +115,7 @@ export default function MonthDatePicker({ value, onChange, minDate }: MonthDateP
                         const key = fmt(date);
                         const isSelected = value === key;
                         const isToday = fmt(today) === key;
-                        const isDisabled = date < min;
+                        const isDisabled = date < min || date.getDay() === 0;
                         return (
                             <button
                                 type="button"

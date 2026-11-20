@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10.2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>VIT SCOPE Research Portal — VAPT Remediation Plan (Implemented)</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      font-size: 11pt;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">VIT SCOPE Research Portal — VAPT Remediation Plan
+(Implemented)</h1>
+<p class="subtitle">Issue-by-issue analysis and proposed solutions
+(solutions_vapt)</p>
+<p class="date">oday</p>
+</header>
+<h1 id="overview">Overview</h1>
+<p>This document responds to the Vulnerability Assessment and
+Penetration Testing (VAPT) report performed against the VIT SCOPE
+Research Portal codebase. Each finding was independently re-verified
+against the current, live codebase before a remediation was proposed —
+several findings reference legacy Supabase-era files that are no longer
+part of the running application, and this is noted explicitly where
+relevant.</p>
+<p>Findings are grouped into four remediation phases, ordered by actual
+risk and blast radius rather than strictly by the report’s severity
+labels, since a few “Medium” items are live functional bugs and a few
+“High” items are lower real-world risk once context is applied.</p>
+<hr />
+<h1 id="phase-1-critical-immediate">Phase 1 — Critical (Immediate)</h1>
+<h2
+id="vapt-01-hardcoded-supabase-credentials-with-permissive-public-rls-policies">VAPT-01:
+Hardcoded Supabase Credentials with Permissive Public RLS Policies</h2>
+<p><strong>Severity:</strong> Critical</p>
+<p><strong>Issue addressed:</strong> Several legacy scripts
+(<code>scripts/debug_bookings.js</code>,
+<code>scripts/seed_30min_slots.js</code>,
+<code>scripts/seed_extra_slots.js</code>,
+<code>scripts/test_schema.js</code>) contain hardcoded fallback values
+for a Supabase project URL and anonymous JWT key. The accompanying
+<code>database/supabase_setup.sql</code> and
+<code>database/fix_rls_anon.sql</code> define Row-Level Security
+policies that grant the <code>public</code> role unrestricted
+<code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, and
+<code>DELETE</code> access to the <code>slots</code>,
+<code>bookings</code>, and <code>documents</code> tables and storage
+bucket. Anyone who obtains the key — which is sitting in the repository
+in plaintext — has full read/write/delete access to that database,
+independent of any authentication in the running application.</p>
+<p><strong>Context:</strong> The live application no longer uses
+Supabase; it was migrated to Azure Database for PostgreSQL earlier in
+this engagement. These files are dead code with respect to the running
+system. The risk is not that the live app is exposed through this path —
+it is that the Supabase project itself, if still provisioned, remains
+openly writable to anyone who finds this key in the repository
+history.</p>
+<p><strong>Proposed solution:</strong> 1. Delete
+<code>scripts/debug_bookings.js</code>,
+<code>scripts/seed_30min_slots.js</code>,
+<code>scripts/seed_extra_slots.js</code>,
+<code>scripts/test_schema.js</code>,
+<code>database/supabase_setup.sql</code>, and
+<code>database/fix_rls_anon.sql</code> from the repository. 2.
+Separately, outside the codebase: rotate or revoke the exposed Supabase
+anon key from the Supabase dashboard, and decommission the Supabase
+project if it is confirmed unused. 3. Add a pre-commit secret-scanning
+check (e.g. <code>gitleaks</code>) going forward to prevent
+recurrence.</p>
+<p><strong>Implemented — reasoning and verification:</strong> A full
+<code>grep</code> across <code>src/</code> confirmed zero references to
+Supabase anywhere in the running application, so these files carried no
+functional dependency. Rather than deleting only the four files the
+original report named, a follow-up grep across the rest of
+<code>scripts/</code> found five <em>additional</em> legacy files
+(<code>clean_slots.js</code>, <code>insert_test_slots.js</code>,
+<code>seed_slots.js</code>, <code>seed_slots_v2.js</code>,
+<code>verify_slots.js</code>) with the same hardcoded Supabase
+URL/anon-key pattern that the report had not enumerated — these were
+deleted as well, since leaving them in place would have left the
+identical credential-exposure vector only partially closed. A stray
+comment in <code>database/azure_postgres_setup.sql</code> referencing
+the now-deleted <code>supabase_setup.sql</code> was also corrected to
+avoid a dangling file reference.</p>
+<p><em>Alignment check:</em> the fix directly removes the
+credential-leak artifact VAPT-01 identifies, without touching any code
+path the live Azure-backed application depends on (confirmed via the
+<code>src/</code> grep before deletion). <em>Re-verification:</em>
+<code>grep -rln supabase src/</code> returns no results;
+<code>ls scripts/ database/</code> confirms only the three
+Azure-relevant scripts and the Azure schema file remain. Note: step 2
+above (rotating/revoking the Supabase key, decommissioning the project)
+is outside this codebase and must be done manually in the Supabase
+dashboard — not something I have access to from here.</p>
+<hr />
+<h2
+id="vapt-11-unique-constraint-denial-of-service-on-re-booking-cancelled-slots">VAPT-11:
+Unique Constraint Denial of Service on Re-Booking Cancelled Slots</h2>
+<p><strong>Severity:</strong> Medium in the report; treated as Critical
+here because it is a <strong>live functional bug</strong>, not a
+theoretical one.</p>
+<p><strong>Issue addressed:</strong> The <code>bookings</code> table has
+<code>CONSTRAINT unique_slot_booking UNIQUE (slot_id)</code> with no
+qualifying condition. When a booking is cancelled, the row remains in
+the table with its original <code>slot_id</code>, only its
+<code>status</code> changes to <code>cancelled</code>. If the underlying
+slot is later re-released and a different (or the same) faculty member
+books it again, the new <code>INSERT INTO bookings (slot_id, ...)</code>
+violates the unique constraint and fails outright. In effect, once a
+slot is cancelled, it can never be successfully booked again — only ever
+appear briefly as available before erroring out.</p>
+<p><strong>Proposed solution:</strong> Replace the table-wide unique
+constraint with a partial unique index that only applies to active
+bookings:</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">ALTER</span> <span class="kw">TABLE</span> bookings <span class="kw">DROP</span> <span class="kw">CONSTRAINT</span> <span class="cf">IF</span> <span class="kw">EXISTS</span> unique_slot_booking;</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">UNIQUE</span> <span class="kw">INDEX</span> unique_active_slot_booking</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">ON</span> bookings (slot_id)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">WHERE</span> status <span class="op">!=</span> <span class="st">&#39;cancelled&#39;</span>;</span></code></pre></div>
+<p>This still prevents two active bookings from claiming the same slot,
+while allowing a slot to be legitimately re-booked after a prior booking
+on it was cancelled.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Applied
+directly to the live Azure Postgres database
+(<code>ALTER TABLE ... DROP CONSTRAINT</code>, then
+<code>CREATE UNIQUE INDEX ... WHERE status != 'cancelled'</code>), and
+mirrored the same change in
+<code>database/azure_postgres_setup.sql</code> so a fresh database setup
+matches the live schema. <em>Alignment check:</em> this directly targets
+the exact mechanism VAPT-11 describes — a stale <code>cancelled</code>
+row holding <code>slot_id</code> blocking all future bookings of that
+slot — without weakening the original intent of the constraint (two
+simultaneously <em>active</em> bookings on the same slot are still
+impossible). <em>Re-verification:</em> ran a real end-to-end test inside
+a rolled-back transaction, inserting a new <code>pending</code> booking
+against the <code>slot_id</code> of an existing <code>cancelled</code>
+booking already in the production table — the insert succeeded with no
+constraint violation (previously this would have failed). The test
+transaction was rolled back, so no production data was altered by the
+verification itself.</p>
+<hr />
+<h2
+id="vapt-18ii-admin-session-missing-email-breaks-ai-chat-authorization">VAPT-18(ii):
+Admin Session Missing Email Breaks AI Chat Authorization</h2>
+<p><strong>Severity:</strong> Low in the report; treated as
+Critical-priority here because it is a <strong>live functional
+bug</strong> blocking a feature for the admin role entirely.</p>
+<p><strong>Issue addressed:</strong> The admin credentials provider in
+<code>src/lib/auth.ts</code> returns a user object of
+<code>{ id, name, role: 'admin' }</code> with no <code>email</code>
+field. <code>src/app/api/ai/chat/route.ts</code> requires
+<code>session?.user?.email</code> to proceed, returning
+<code>401 Unauthorized</code> otherwise. As a result, an admin who is
+correctly authenticated can never use the AI chatbot, including the “add
+slot via one command” feature that was built specifically for admin
+use.</p>
+<p><strong>Proposed solution:</strong> Give the admin credentials
+provider a synthetic, stable email value
+(e.g. <code>${username}@internal.vit-scope</code>) at sign-in so
+downstream checks that key off <code>session.user.email</code> continue
+to work uniformly for both faculty (Google OAuth) and admin
+(credentials) sessions, without having to special-case admin
+everywhere.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>email: \</code>${admin.username}<span class="citation"
+data-cites="internal.vit-scope">@internal.vit-scope</span>`<code>to the object returned from the admin</code>Credentials<code>provider's</code>authorize()<code>callback in</code>src/lib/auth.ts<code>. A synthetic, non-resolvable domain was chosen deliberately over reusing a real VIT domain, so it's immediately recognizable in logs/DB rows as an admin-session artifact rather than a real faculty address, and can never collide with an actual</code><span
+class="citation"
+data-cites="vit.ac.in">@vit.ac.in</span><code>/</code><span
+class="citation"
+data-cites="vitstudent.ac.in">@vitstudent.ac.in</span><code>account. *Alignment check:*</code>checkAccess()<code>(the Google-only allowlist gate) is untouched — it only runs for the Google provider in the</code>signIn<code>callback, so this change cannot be used to bypass faculty access control; it only backfills a field that was previously</code>undefined<code>for a session type that already has full admin privileges by design. *Re-verification:*</code>tsc
+–noEmit<code>passes clean; confirmed no other code path treats</code>session.user.email<code>as a value that must resolve to a real, deliverable mailbox for the admin role specifically (the only place that matters,</code>checkAccess`,
+is Google-provider-only as noted).</p>
+<hr />
+<h1 id="phase-2-high">Phase 2 — High</h1>
+<h2
+id="vapt-02-vapt-06-vapt-10-unrestricted-file-upload-path-traversal-and-unbounded-upload-size">VAPT-02
+/ VAPT-06 / VAPT-10: Unrestricted File Upload, Path Traversal, and
+Unbounded Upload Size</h2>
+<p><strong>Severity:</strong> High / Medium / Medium (addressed together
+— same code path)</p>
+<p><strong>Issue addressed:</strong>
+<code>src/app/api/documents/route.ts</code> accepts any uploaded file
+with no server-side validation of extension, MIME type, or file
+signature, and directly assigns the client-supplied
+<code>file.type</code> as the blob’s <code>Content-Type</code> header. A
+malicious <code>.html</code> or <code>.svg</code> upload served back
+with <code>Content-Type: text/html</code> can execute script in a
+viewer’s browser context (stored XSS). Separately, the blob name is
+derived from the user-supplied <code>title</code> field with only
+whitespace stripped — path separators or traversal sequences are not
+rejected, risking unexpected blob paths in storage. There is also no
+upload size limit, so a very large file can be loaded entirely into
+process memory via <code>file.arrayBuffer()</code>, risking an
+out-of-memory crash under concurrent large uploads.</p>
+<p><strong>Proposed solution:</strong> 1. Enforce a strict file
+extension allowlist (<code>.pdf</code>, <code>.docx</code>,
+<code>.xlsx</code>, <code>.pptx</code>, and similar office/document
+formats only). 2. Verify the file’s actual content against its declared
+type using file-signature (magic byte) inspection, not just the
+extension or client-supplied MIME type. 3. Force safe handling
+regardless of content: set <code>blobHTTPHeaders.blobContentType</code>
+to a fixed <code>application/octet-stream</code> (or the verified
+allowlisted type) and set <code>Content-Disposition: attachment</code>
+so browsers download rather than render the file. 4. Generate blob names
+from a cryptographically random UUID rather than the user-supplied
+title, eliminating the path-traversal surface entirely. 5. Reject
+uploads above a fixed size ceiling (10 MB is a reasonable default for
+this use case) before reading the file into memory.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>src/lib/fileValidation.ts</code> with an extension allowlist (PDF,
+DOC(X), XLS(X), PPT(X)), a magic-byte signature table for each format
+family (<code>%PDF</code> for PDF, the shared ZIP signature for the
+OOXML formats, the shared OLE signature for the legacy binary formats),
+and a 10MB size constant. <code>src/app/api/documents/ route.ts</code>’s
+<code>POST</code> handler now: rejects oversized files before buffering
+(closes VAPT-10); rejects any extension outside the allowlist; rejects
+files whose actual byte content doesn’t match their claimed extension
+(closes the XSS vector in VAPT-02, since an HTML/SVG payload renamed to
+<code>.pdf</code> now fails the signature check rather than being
+trusted); forces the blob’s <code>Content-Type</code> to a fixed,
+verified value instead of the client-supplied <code>file.type</code>;
+adds <code>Content-Disposition: attachment</code> so browsers download
+rather than render even a technically valid document; and generates the
+blob name from <code>crypto.randomUUID()</code> instead of the
+user-supplied title, eliminating the path-traversal surface entirely
+(closes VAPT-06).</p>
+<p><em>Alignment check:</em> every sub-finding in this group (02/06/10)
+traced back to the same upload code path, so fixing them together in one
+pass was both correct and avoided three separate, possibly-conflicting
+patches to the same function. <em>Re-verification:</em>
+<code>tsc --noEmit</code> passes clean; ran a standalone test of the
+signature-matching logic against a real PDF header (passes, as expected)
+and an HTML payload with a spoofed <code>.pdf</code> extension
+(correctly rejected) — matching the exact attack scenario VAPT-02
+describes.</p>
+<hr />
+<h2
+id="vapt-05-client-side-only-route-guard-and-missing-server-side-authorization">VAPT-05:
+Client-Side-Only Route Guard and Missing Server-Side Authorization</h2>
+<p><strong>Severity:</strong> High</p>
+<p><strong>Issue addressed:</strong> The only barrier preventing
+unauthenticated access to admin pages is the client-side
+<code>&lt;AdminGuard&gt;</code> React component, which only takes effect
+after the JavaScript bundle has downloaded and hydrated. There is no
+<code>middleware.ts</code> and no server-side check in the admin layout.
+More significantly, <code>src/app/dashboard/layout.tsx</code> and
+<code>src/app/book-slot/layout.tsx</code> have <strong>no authentication
+check whatsoever</strong> — any unauthenticated visitor can load these
+routes directly.</p>
+<p><strong>Proposed solution:</strong> 1. Add a root-level
+<code>middleware.ts</code> that validates the session (via Auth.js) and
+role before any request reaches <code>/admin/*</code>,
+<code>/dashboard/*</code>, or <code>/book-slot/*</code>, redirecting
+unauthenticated or under-privileged requests before any page code runs.
+2. Add a server-side session check directly in
+<code>dashboard/layout.tsx</code> and <code>book-slot/layout.tsx</code>
+(both currently bare passthroughs) as defense-in-depth beneath the
+middleware layer, consistent with the pattern already used for
+<code>/admin</code>.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added a
+root-level <code>middleware.ts</code> that wraps Auth.js’s
+<code>auth()</code> as the middleware function, matched against
+<code>/admin/:path*</code>, <code>/dashboard/:path*</code>, and
+<code>/book-slot/:path*</code>. It redirects unauthenticated requests to
+<code>/</code> (for dashboard/book-slot) or <code>/admin-login</code>
+(for admin), and additionally requires <code>role === 'admin'</code> for
+the admin paths — all before any page code runs. Because the Credentials
+provider in <code>src/lib/auth.ts</code> uses <code>bcrypt</code> and a
+<code>pg</code> connection pool (Node-only APIs incompatible with the
+default Edge middleware runtime), the middleware explicitly sets
+<code>runtime: 'nodejs'</code> in its exported <code>config</code>,
+which Next.js 16 supports as a stable option — without this, the build
+would fail trying to bundle <code>pg</code>/<code>bcrypt</code> for the
+Edge runtime. Server-side session checks (<code>await auth()</code> +
+<code>redirect()</code>) were also added directly to
+<code>dashboard/layout.tsx</code>, <code>book-slot/layout.tsx</code>,
+and <code>admin/layout.tsx</code> (the last as an explicit
+belt-and-suspenders check ahead of the existing client-only
+<code>&lt;AdminGuard&gt;</code>, matching the pattern the original
+report suggested).</p>
+<p><em>Alignment check:</em> this closes exactly the gap VAPT-05
+describes — <code>/dashboard</code> and <code>/book-slot</code>
+previously had zero auth checks of any kind, and <code>/admin</code>
+relied solely on a client component that only activates post-hydration.
+<em>Re-verification:</em> <code>tsc --noEmit</code> passes clean, and a
+full production build succeeds — critically, the build output shows
+<code>/admin</code>, <code>/admin/dashboard</code>,
+<code>/dashboard</code>, <code>/book-slot</code>, and related routes
+changed from statically prerendered (<code>○</code>) to
+server-rendered-on-demand (<code>ƒ</code>), which confirms the new
+<code>await auth()</code> calls are forcing per-request server
+evaluation rather than being skipped by static generation.</p>
+<hr />
+<h2 id="vapt-03-csv-formula-injection-in-admin-booking-export">VAPT-03:
+CSV / Formula Injection in Admin Booking Export</h2>
+<p><strong>Severity:</strong> High</p>
+<p><strong>Issue addressed:</strong>
+<code>src/components/Admin/AdminTable.tsx</code>’s CSV export
+concatenates user-supplied fields (scholar name, faculty name, meeting
+type) directly into CSV rows with no escaping of formula-trigger
+characters. A booking submitted with a scholar name such as
+<code>=CMD|' /C calc'!A0</code> becomes a live, executable formula the
+moment an administrator opens the exported file in Excel or LibreOffice
+Calc, enabling command execution on the administrator’s machine.</p>
+<p><strong>Proposed solution:</strong> Before writing each cell, prefix
+any value that begins with <code>=</code>, <code>+</code>,
+<code>-</code>, <code>@</code>, a tab, or a carriage return with a
+leading single quote (<code>'</code>), which spreadsheet applications
+treat as a literal-text marker rather than a formula indicator. Also
+double any internal double-quote characters per standard CSV escaping
+rules.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>src/utils/csv.ts</code> exporting a single <code>csvCell()</code>
+helper implementing exactly this escaping rule, and replaced the manual
+string-interpolation CSV-building in <code>AdminTable.tsx</code>’s
+<code>handleExport()</code> with
+<code>[...].map(csvCell).join(',')</code> for both the header row and
+every data row. <em>Alignment check:</em> the fix is applied uniformly
+to every field in the export, not just the ones that happen to hold
+user-controlled data — the ID/date/time/status fields are
+server-generated and therefore safe already, but routing them through
+the same helper means any future column addition is protected by default
+rather than requiring a developer to remember which fields need
+escaping. <em>Re-verification:</em> ran the sanitizer against the exact
+proof-of-concept payload from the report,
+<code>=CMD|' /C calc'!A0</code> — it comes out as
+<code>"'=CMD|' /C calc'!A0"</code>, which Excel and LibreOffice both
+render as inert literal text rather than executing; also verified normal
+values pass through unchanged and embedded double-quotes escape
+correctly.</p>
+<hr />
+<h2
+id="vapt-04-stored-html-content-injection-in-notification-emails">VAPT-04:
+Stored HTML / Content Injection in Notification Emails</h2>
+<p><strong>Severity:</strong> High</p>
+<p><strong>Issue addressed:</strong> <code>src/lib/mail.ts</code>
+interpolates <code>facultyName</code>, <code>scholarName</code>,
+<code>scholarId</code>, and <code>meetingType</code> directly into HTML
+email bodies with no encoding. A booking submitted with HTML tags in any
+of these fields (e.g. a fake
+<code>&lt;a href="..."&gt;Confirm here&lt;/a&gt;</code> link, or an
+<code>&lt;img&gt;</code>/<code>&lt;iframe&gt;</code> overlay) renders as
+live markup in the recipient’s email client, enabling phishing or
+credential-harvesting against administrators and faculty who receive
+these notifications.</p>
+<p><strong>Proposed solution:</strong> HTML-encode every user-supplied
+value (<code>&amp;</code>, <code>&lt;</code>, <code>&gt;</code>,
+<code>"</code>, <code>'</code>) before interpolating it into an email
+template, and strip carriage-return/line-feed characters from any value
+that could end up in a header or subject line to prevent email header
+injection. Add a plain-text <code>text:</code> alternative to every sent
+email alongside the HTML version.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>src/utils/sanitize.ts</code> with <code>escapeHtml()</code>
+(entity-encodes <code>&amp; &lt; &gt; " '</code>) and
+<code>stripCrlf()</code> (collapses <code>\r</code>/<code>\n</code> to a
+space). Rewrote <code>src/lib/mail.ts</code> so every interpolated value
+in both email templates — faculty name, faculty email, scholar name/id,
+meeting type, date, start/end time — goes through
+<code>escapeHtml()</code>, and both subject lines go through
+<code>stripCrlf()</code>. Added a <code>text:</code> plain-text
+alternative to both <code>sendMail()</code> calls, matching the
+recommendation and giving mail clients a safe fallback rendering path.
+<em>Alignment check:</em> this covers every field the report flagged
+(<code>facultyName</code>/<code>scholarName</code>/<code>scholarId</code>/<code>meetingType</code>)
+plus the remaining interpolated fields in the same templates that
+weren’t explicitly named but share the identical risk
+(<code>facultyEmail</code>, <code>date</code>, <code>startTime</code>,
+<code>endTime</code>) — fixing the whole template rather than only the
+named fields. <em>Re-verification:</em> <code>tsc --noEmit</code> passes
+clean; ran <code>escapeHtml()</code> against a representative phishing
+payload,
+<code>&lt;a href="http://evil.com"&gt;Click here to confirm&lt;/a&gt;</code>
+— it renders as inert escaped text
+(<code>&amp;lt;a href=&amp;quot;...&amp;quot;&amp;gt;...</code>) rather
+than a clickable link, while a normal value like <code>Dr. Smith</code>
+passes through unchanged.</p>
+<hr />
+<h1 id="phase-3-medium">Phase 3 — Medium</h1>
+<h2 id="vapt-08-unauthenticated-slot-and-schedule-enumeration">VAPT-08:
+Unauthenticated Slot and Schedule Enumeration</h2>
+<p><strong>Issue addressed:</strong> <code>GET /api/slots</code>
+performs no authentication check at all — any unauthenticated caller can
+call <code>/api/slots?all=true</code> and enumerate the institution’s
+entire schedule of meeting slots.</p>
+<p><strong>Proposed solution:</strong> Require a valid session at the
+top of the <code>GET</code> handler, returning <code>401</code> for
+unauthenticated requests, consistent with every other data-returning
+route in the application.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>const session = await auth(); if (!session) return 401</code> at
+the top of <code>GET</code> in <code>src/app/api/slots/route.ts</code>.
+Note this is a genuinely necessary fix independent of
+<code>middleware.ts</code> (Task 5/VAPT-05) — that middleware’s matcher
+only covers page routes (<code>/admin</code>, <code>/dashboard</code>,
+<code>/book-slot</code>), not <code>/api/*</code> routes, so this API
+endpoint would otherwise still be directly reachable by an
+unauthenticated caller even with the middleware in place. While
+implementing this, found that the file already had a second, later
+<code>const session = await auth()</code> call (added earlier this
+session for the cross-meeting-type conflict check) — consolidated both
+into the single session lookup at the top of the function rather than
+querying twice, which is both the TypeScript-correct fix (duplicate
+<code>const</code> in the same scope doesn’t compile) and a small
+efficiency win. <em>Re-verification:</em> <code>tsc --noEmit</code> and
+a full production build both pass clean.</p>
+<h2 id="vapt-09-identity-spoofing-in-slot-booking-parameters">VAPT-09:
+Identity Spoofing in Slot Booking Parameters</h2>
+<p><strong>Issue addressed:</strong> While the booking’s
+<code>emp_email</code> is correctly bound to the authenticated session,
+the <code>empId</code> and <code>empName</code> fields are accepted
+verbatim from the request body with no cross-check against a trusted
+record, allowing any authenticated user to submit a booking that
+displays someone else’s name and employee ID.</p>
+<p><strong>Proposed solution:</strong> Add length and character-set
+validation on <code>empId</code>/<code>empName</code> as an immediate
+mitigation; as a longer-term improvement, source these fields from a
+verified <code>users</code>/<code>admins</code> record or the OAuth
+identity claims rather than trusting client input.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>isValidPersonField()</code> to <code>src/utils/sanitize.ts</code>
+— a Unicode-aware allowlist (<code>\p{L}\p{N} .,'-/</code>) with a
+100-character cap — and applied it to <code>empId</code>,
+<code>empName</code>, <code>scholarId</code>, and
+<code>scholarName</code> in <code>POST /api/bookings</code>, rejecting
+the request with a <code>400</code> and a field-specific message if any
+fail. <em>Alignment check:</em> this is deliberately the “immediate
+mitigation” tier the report itself proposes, not the longer-term
+structural fix (sourcing <code>empId</code>/<code>empName</code> from a
+verified record) — that larger change would require introducing a
+<code>users</code> table keyed to Google identity and backfilling it,
+which is a bigger architectural change better scoped as its own task
+than folded into this security pass; the validation here closes the
+actual exploitable surface (arbitrary/script-bearing content in these
+fields) immediately. <em>Re-verification</em>: ran the validator against
+real existing production booking data
+(<code>"Vidhi Prashant J 23BAI0063"</code>, <code>"21phd0045"</code>,
+<code>"Rajkumar Soundrapandiyan"</code>) — all pass unchanged,
+confirming no legitimate existing bookings would be rejected by this
+change — and against an XSS-style payload
+(<code>&lt;script&gt;alert(1)&lt;/script&gt;</code>), an empty string,
+and an oversized 201-character string — all three correctly rejected.
+<code>tsc --noEmit</code> passes clean.</p>
+<h2 id="vapt-07-sas-token-forwarded-to-google-docs-viewer">VAPT-07: SAS
+Token Forwarded to Google Docs Viewer</h2>
+<p><strong>Issue addressed:</strong> Document previews for Office files
+pass the full signed Azure Blob SAS URL — including its time-limited
+authorization token — to <code>docs.google.com/viewer</code>, exposing
+that signed URL to a third-party service and its logs.</p>
+<p><strong>Proposed solution:</strong> This was already partially
+mitigated earlier in this engagement by switching from permanent public
+blob URLs to signed URLs with a 60-minute expiry. The remaining exposure
+(the signed URL reaching Google’s viewer) should be accepted as a
+bounded, time-limited risk, or replaced with an internally hosted
+document preview if fully avoiding any third-party exposure becomes a
+hard requirement.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Rather
+than leave this as purely an accepted risk, tightened
+<code>getReadSasUrl()</code>’s default expiry in
+<code>src/lib/blob.ts</code> from 60 minutes down to 15 — matching the
+report’s own suggested 5–15 minute window — reducing the exposure window
+for a URL that reaches Google’s viewer/logs by 4x, while still
+comfortably covering a normal document-viewing session. <em>Alignment
+check:</em> building a fully internal document-proxy viewer (the
+alternative the report offers) was deliberately not pursued — it’s a
+meaningfully larger change (new streaming endpoint, rewriting the viewer
+UI) for a residual risk that is now time-boxed to 15 minutes and limited
+to read-only access on files the admin has already chosen to make
+available to faculty; that tradeoff was judged disproportionate to the
+remaining risk. <em>Re-verification:</em> <code>tsc --noEmit</code>
+passes clean.</p>
+<h2
+id="vapt-13-office-document-viewer-detection-regex-fails-on-signed-urls">VAPT-13:
+Office Document Viewer Detection Regex Fails on Signed URLs</h2>
+<p><strong>Issue addressed:</strong> The regex used to detect Office
+document file types anchors on end-of- string (<code>$</code>), which
+never matches a URL with a trailing SAS query string, so Office
+documents always fall through to the plain iframe viewer instead of the
+intended Office-aware viewer.</p>
+<p><strong>Proposed solution:</strong> Strip the query string from the
+URL before testing the extension regex.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Changed
+<code>selectedDoc.blob_url.match(...)</code> to
+<code>selectedDoc.blob_url.split('?')[0].match(...)</code> in
+<code>src/app/documents/page.tsx</code> (the only call site of this
+check in the codebase — confirmed via a repo-wide grep for
+<code>isOffice</code>/<code>DocumentViewerModal</code>). <em>Alignment
+check:</em> this is now functionally significant beyond the original
+report’s framing — since VAPT-07’s fix switched document URLs from
+permanent public links to signed SAS URLs (which always carry a query
+string), <em>every</em> Office document now hits this bug, not just
+some; fixing it was effectively required to make the VAPT-07 remediation
+fully functional, not just a cosmetic correction.
+<em>Re-verification:</em> reproduced the exact failure against a
+representative SAS URL shape
+(<code>...docx?sv=...&amp;se=...&amp;sig=...</code>) — the old regex
+returns <code>false</code> as the report describes, the fixed version
+(stripping the query string first) returns <code>true</code>.
+<code>tsc --noEmit</code> passes clean.</p>
+<h2 id="vapt-12-known-vulnerabilities-in-dependencies">VAPT-12: Known
+Vulnerabilities in Dependencies</h2>
+<p><strong>Issue addressed:</strong> <code>npm audit</code> currently
+reports 9 advisories (1 critical, 7 high, 1 moderate) in production
+dependencies, most significantly in <code>postcss</code>,
+<code>sharp</code>, and <code>source-map-js</code>.</p>
+<p><strong>Proposed solution:</strong> Apply <code>npm audit fix</code>
+for advisories with a non-breaking patch available; evaluate
+major-version upgrades for <code>sharp</code>/<code>postcss</code> in a
+controlled test pass before applying, since those updates can carry
+breaking changes. Add automated dependency scanning (Dependabot or
+equivalent) to catch future advisories automatically.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Ran
+<code>npm audit fix</code> (no <code>--force</code>). Production
+(<code>--omit=dev</code>) advisories dropped from 9 to 6 — the
+<code>source-map-js</code> event-loop DoS advisory was resolved via a
+non-breaking transitive bump, reflected only in
+<code>package-lock.json</code> (no <code>package.json</code> range
+changes). The remaining 6 (<code>postcss</code>, <code>sharp</code>, and
+<code>next-auth</code>’s transitive
+<code>@auth/core</code>/<code>nodemailer</code> dependencies) all
+require <code>npm audit fix --force</code>, which npm itself reports
+would install <code>next@16.4.3</code> — a version outside this
+project’s stated dependency range. <em>Alignment check:</em> the plan
+explicitly scoped major-version upgrades as needing a separate
+controlled test pass rather than being force-applied inside this
+security remediation pass, since a forced Next.js major bump risks
+breaking the application in ways a security fix shouldn’t — so
+deliberately stopped here rather than running <code>--force</code>.
+<em>Re-verification:</em> <code>tsc --noEmit</code> passes clean and a
+full production build succeeds after the lockfile update, confirming the
+applied fix introduced no regressions. The remaining 6 advisories are
+carried forward as a known, explicitly-flagged follow-up requiring its
+own testing pass (not silently left unaddressed).</p>
+<h2 id="vapt-14-missing-http-security-headers">VAPT-14: Missing HTTP
+Security Headers</h2>
+<p><strong>Issue addressed:</strong> <code>next.config.ts</code> sets no
+security-related HTTP headers, leaving the application without
+clickjacking protection, MIME-sniffing protection, or HSTS
+enforcement.</p>
+<p><strong>Proposed solution:</strong> Add a <code>headers()</code>
+block to <code>next.config.ts</code> setting
+<code>X-Frame-Options: DENY</code>,
+<code>X-Content-Type-Options: nosniff</code>,
+<code>Referrer-Policy: strict-origin-when-cross-origin</code>,
+<code>Strict-Transport-Security</code>, and a
+<code>Content-Security-Policy</code> appropriate to the application’s
+actual script/style sources.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added an
+<code>async headers()</code> block to <code>next.config.ts</code>
+applying to every route (<code>source: '/(.*)'</code>), setting
+<code>X-Frame-Options: DENY</code>,
+<code>X-Content-Type-Options: nosniff</code>,
+<code>Referrer-Policy: strict-origin-when-cross-origin</code>,
+<code>Strict-Transport-Security</code>, and a
+<code>Content-Security-Policy</code>. The CSP was not copied verbatim
+from the report’s generic example — it was built by first grepping the
+codebase for every external resource the app actually loads
+(<code>ui-avatars.com</code> for profile avatars in
+<code>BookingCard.tsx</code>/<code>Navbar.tsx</code>/<code>Sidebar.tsx</code>,
+<code>docs.google.com</code> for the Office document viewer iframe, and
+the Azure Blob Storage domain for document preview iframes/images in
+<code>DocumentViewerModal.tsx</code>), then scoping
+<code>img-src</code>/<code>frame-src</code>/<code>connect-src</code> to
+exactly those origins plus <code>'self'</code>. A generic/stricter CSP
+copied from the report without this check would have silently broken
+avatar images and document previews. <em>Alignment check:</em>
+<code>frame-ancestors 'none'</code> (in the CSP) and
+<code>X-Frame-Options: DENY</code> both address the same clickjacking
+risk redundantly for broader browser support, matching the report’s
+intent exactly. <em>Re-verification:</em> <code>tsc --noEmit</code> and
+a full production build both pass clean with the new config in
+place.</p>
+<hr />
+<h1 id="phase-4-lower-priority-hardening">Phase 4 — Lower Priority /
+Hardening</h1>
+<h2 id="vapt-15-hardcoded-faculty-emails-in-source">VAPT-15: Hardcoded
+Faculty Emails in Source</h2>
+<p><strong>Issue addressed:</strong> The faculty access allowlist is
+committed directly into <code>src/utils/accessControl.ts</code> as
+plaintext email addresses, requiring a code change and redeployment for
+every access change.</p>
+<p><strong>Proposed solution:</strong> Move the allowlist into the
+database, reusing the <code>app_settings</code>-style pattern already
+established for the Oral Exam booking toggle, so the admin can manage
+authorized accounts through the UI instead of through source code.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added a
+dedicated <code>allowed_emails</code> table (rather than overloading
+<code>app_settings</code>, since this is a list of rows, not a single
+key/value flag), seeded on the live database with the exact four emails
+previously hardcoded. Rewrote <code>src/utils/accessControl.ts</code>’s
+<code>checkAccess()</code> to be async and query this table instead of a
+hardcoded array, and updated its one server-side caller
+(<code>src/lib/auth.ts</code>’s <code>signIn</code> callback) to
+<code>await</code> it. Added <code>/api/admin/allowed-emails</code>
+(GET/POST/DELETE, admin-only) and a new
+<code>AllowedEmailsManager</code> UI component — a simple add/remove
+chip list — placed on the admin dashboard (the slot the Oral Exam toggle
+vacated when it moved to Add Slots per your separate request, keeping
+that page focused on what you specifically asked to see there).</p>
+<p>A real complication surfaced during this change:
+<code>checkAccess()</code> was also imported directly into
+<code>DashboardView.tsx</code>, a <strong>client</strong> component, for
+a secondary re-check of the current session against the allowlist
+(catching the case where an admin revokes someone’s access after they’ve
+already signed in, since their JWT session stays valid until it
+naturally expires). The DB-backed version imports <code>pool</code> from
+<code>@/lib/db</code>, which uses <code>pg</code> — a Node-only package
+that cannot be bundled into client-side JavaScript. Rather than leave
+that check broken or silently drop it, added a new
+<code>GET /api/access-check</code> route that runs the same
+<code>checkAccess()</code> server-side against the caller’s own session,
+and pointed <code>DashboardView.tsx</code> at that endpoint via
+<code>fetch()</code> instead. <em>Alignment check:</em> this preserves
+the exact security property the original client-side check provided
+(mid-session revocation detection) while fully eliminating the
+hardcoded-PII exposure VAPT-15 flagged. <em>Re-verification:</em>
+<code>tsc --noEmit</code> and a full production build both pass clean —
+critically, the build succeeding at all confirms <code>pg</code> never
+leaked into a client bundle (that specific failure mode hard-fails the
+Next.js build rather than silently shipping broken code). Also ran a
+direct query against the live <code>allowed_emails</code> table
+confirming <code>rajkumars@vit.ac.in</code> and its uppercase variant
+both resolve to allowed (preserving the original case-insensitive
+matching behavior) while an arbitrary unauthorized email correctly
+resolves to not-allowed.</p>
+<h2 id="vapt-16-trusthost-true-in-auth.js-configuration">VAPT-16:
+<code>trustHost: true</code> in Auth.js Configuration</h2>
+<p><strong>Issue addressed:</strong> <code>trustHost: true</code> causes
+Auth.js to trust the incoming <code>Host</code> header, which could in
+principle be abused for host-header poisoning if the reverse proxy does
+not sanitize that header.</p>
+<p><strong>Proposed solution:</strong> This setting was added
+specifically to resolve a production <code>UntrustedHost</code> failure
+on Azure App Service, and <code>NEXTAUTH_URL</code> is already pinned
+explicitly to the canonical production domain, which closes the
+practical risk. No change recommended beyond confirming
+<code>NEXTAUTH_URL</code> stays authoritative and is never left unset in
+any environment.</p>
+<p><strong>Verified, no code change:</strong> Queried the live Azure App
+Service configuration directly — <code>NEXTAUTH_URL</code> is set to
+<code>https://vit-scope-portal.azurewebsites.net</code>, confirming it
+remains authoritative as assumed. <em>Alignment check:</em> removing
+<code>trustHost: true</code> would reintroduce the production-breaking
+<code>UntrustedHost</code> error this setting was added to fix
+(confirmed earlier in this engagement), for a risk that
+<code>NEXTAUTH_URL</code> being pinned already closes — so no code
+change was made here, consistent with the plan’s own conclusion.</p>
+<h2
+id="vapt-17-no-rate-limiting-on-authentication-or-ai-endpoints">VAPT-17:
+No Rate Limiting on Authentication or AI Endpoints</h2>
+<p><strong>Issue addressed:</strong> The admin credentials login and
+both AI endpoints (<code>/api/ai/chat</code>,
+<code>/api/ai/suggest-slot</code>) have no request-rate limiting,
+leaving them open to brute-force login attempts and AI-quota/cost
+exhaustion from a single account.</p>
+<p><strong>Proposed solution:</strong> Add a lightweight in-memory or
+database-backed token-bucket rate limit on <code>/api/admin/*</code>
+login attempts and <code>/api/ai/*</code> calls, scoped per IP and per
+account. Given the application’s scale, a full Redis-backed solution is
+not necessary — a simple sliding window keyed in Postgres or process
+memory is sufficient.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Added
+<code>src/lib/rateLimit.ts</code>, a simple in-memory sliding-window
+limiter (<code>checkRateLimit(key, limit, windowMs)</code>), exactly
+matching the “simple in-process window” tier the plan itself recommends
+over a Redis-backed solution at this scale. Applied three limits: the
+admin <code>Credentials</code> provider’s <code>authorize()</code>
+callback in <code>src/lib/auth.ts</code> now allows 5 attempts per 5
+minutes <strong>per attempted username</strong> (chosen over per-IP,
+since IP extraction behind Azure App Service’s proxy adds complexity for
+limited benefit, and keying on the attempted username directly stops
+credential-stuffing against a specific account regardless of the
+attacker’s IP); <code>/api/ai/chat</code> and
+<code>/api/ai/suggest-slot</code> each allow 20 calls per minute per
+signed-in account. <em>Alignment check:</em> keying by account rather
+than only IP is deliberate — a shared campus NAT/VPN could otherwise
+rate-limit multiple legitimate faculty off a single IP.
+<em>Re-verification:</em> ran the limiter logic standalone — confirmed
+exactly 5 of 8 rapid simulated attempts against the same key are allowed
+(3 correctly blocked), and confirmed a different key (different
+username) is entirely unaffected by another account’s attempts, ruling
+out a cross-account lockout bug. <code>tsc --noEmit</code> and a full
+production build both pass clean.</p>
+<h2 id="vapt-18i-llm-prompt-injection-in-ai-chat-assistant">VAPT-18(i):
+LLM Prompt Injection in AI Chat Assistant</h2>
+<p><strong>Issue addressed:</strong> User chat messages are forwarded to
+Azure OpenAI with no sanitization or explicit boundary between system
+instructions and user input, allowing a user to attempt to override the
+assistant’s intended behavior or extract its system prompt.</p>
+<p><strong>Proposed solution:</strong> Wrap user input with clear
+delimiters and reinforce, within the system prompt, that content inside
+those delimiters is untrusted data and must never be treated as new
+instructions. Continue to keep all data-mutating AI actions (e.g. the
+admin “add slot” command) grounded in server-side validation that does
+not depend on the model’s output being well-behaved.</p>
+<p><strong>Implemented — reasoning and verification:</strong> Updated
+the <code>SYSTEM_PROMPT</code> in
+<code>src/app/api/ai/chat/route.ts</code> to explicitly instruct the
+model that content arriving inside <code>&lt;user_message&gt;</code>
+tags is data to respond to, never instructions to follow, and that it
+must never claim it can delete data or access other users’ bookings. The
+free-text user message is now wrapped in those tags before being sent
+(<code>\</code><user_message>${message}</user_message>`<code>) rather than being concatenated as a bare user-role message with no boundary marker. *Alignment check:* confirmed the two AI-driven actions capable of writing data —</code>handleAddSlotCommand<code>(admin's "add slot" chat command) and the booking-suggestion flow — are both already deterministic/regex- or DB-query-driven rather than trusting raw model output for the actual mutation, so this delimiting closes the "extract the system prompt / change my role" style of injection without needing to re-architect anything already safe by construction. This is explicitly a best-effort mitigation, not a guarantee — LLM prompt injection has no complete technical fix — which is why the report itself correctly scopes it as "Potential Risk" rather than a confirmed exploitable vulnerability. *Re-verification:*</code>tsc
+–noEmit` passes clean.</p>
+<hr />
+<h1
+id="appendix-requests-implemented-outside-the-original-vapt-scope">Appendix
+— Requests implemented outside the original VAPT scope</h1>
+<p>The following two changes were requested mid-implementation and are
+not part of the VAPT findings above, but are documented here for the
+same traceability reasons.</p>
+<h2 id="no-sunday-bookings">No Sunday bookings</h2>
+<p><strong>Request:</strong> no meetings may be scheduled on Sundays;
+Sunday should not be selectable, or should prompt clearly if somehow
+attempted.</p>
+<p><strong>Implemented:</strong>
+<code>src/components/UI/MonthDatePicker.tsx</code> now disables Sunday
+day cells and Sunday-landing quick-select buttons (Today/Tomorrow/etc.)
+outright, and additionally shows an explicit alert if a Sunday is
+somehow selected (defense in depth within the component itself). The
+authoritative check lives server-side in <code>POST /api/slots</code>
+(<code>src/app/api/slots/route.ts</code>): any slot dated on a Sunday is
+rejected with a clear error message before any database write, closing
+the gap a direct API call could otherwise exploit even with the UI
+disabled. <em>Verification:</em> ran the day-of-week detection logic
+against real November 2026 dates — correctly identified Nov 1 and Nov 8
+(both genuine Sundays) as blocked and Nov 2/Nov 7 as allowed;
+<code>tsc --noEmit</code> and a full production build both pass
+clean.</p>
+<h2 id="relocate-the-oral-exam-toggle">Relocate the Oral Exam
+toggle</h2>
+<p><strong>Request:</strong> move the Oral Exam enable/disable toggle
+from the admin dashboard to the top of the Add Slots page.</p>
+<p><strong>Implemented:</strong> removed
+<code>&lt;OralExamToggle /&gt;</code> from
+<code>src/components/Admin/AdminView.tsx</code> (dashboard) and added it
+to the top of <code>src/app/admin/add-slots/page.tsx</code>, directly
+beneath the page heading and above the slot-creation form — the
+component itself was unchanged, only its placement.</p>
+<hr />
+<h1 id="summary-table">Summary Table</h1>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Finding IDs</th>
+<th>Theme</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 — Critical</td>
+<td>VAPT-01, VAPT-11, VAPT-18(ii)</td>
+<td>Leaked credentials; two live functional bugs</td>
+</tr>
+<tr>
+<td>2 — High</td>
+<td>VAPT-02, VAPT-05, VAPT-06, VAPT-10, VAPT-03, VAPT-04</td>
+<td>Upload hardening, route auth, injection fixes</td>
+</tr>
+<tr>
+<td>3 — Medium</td>
+<td>VAPT-07, VAPT-08, VAPT-09, VAPT-12, VAPT-13, VAPT-14</td>
+<td>Auth gaps, dependency hygiene, headers</td>
+</tr>
+<tr>
+<td>4 — Lower priority</td>
+<td>VAPT-15, VAPT-16, VAPT-17, VAPT-18(i)</td>
+<td>Hardening and operational improvements</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

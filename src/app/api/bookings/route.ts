@@ -4,6 +4,7 @@ import { pool } from '@/lib/db';
 import { MEETING_RULES, MeetingType, conflictsWithExisting, conflictsWithOwnSchedule, groupFor } from '@/utils/meetingRules';
 import { notifyAdminOfNewBooking } from '@/lib/mail';
 import { isOralExamEnabled } from '@/lib/settings';
+import { isValidPersonField } from '@/utils/sanitize';
 
 export async function GET() {
   const session = await auth();
@@ -85,6 +86,22 @@ export async function POST(req: Request) {
   const rule = MEETING_RULES[meetingType as MeetingType];
   if (!rule) {
     return NextResponse.json({ error: 'Invalid meeting type.' }, { status: 400 });
+  }
+
+  // These fields are accepted from the client body and not cross-checked
+  // against a trusted identity record (VAPT-09) — as an immediate
+  // mitigation, enforce a strict length and character allowlist so they
+  // can't carry script/HTML payloads or unreasonably long values, even
+  // though they can still claim any name within that allowlist.
+  for (const [label, value] of [
+    ['Employee ID', empId],
+    ['Employee name', empName],
+    ['Scholar ID', scholarId],
+    ['Scholar name', scholarName],
+  ] as const) {
+    if (!isValidPersonField(value)) {
+      return NextResponse.json({ error: `${label} is missing or contains invalid characters.` }, { status: 400 });
+    }
   }
 
   if (meetingType === 'ORAL EXAM' && !(await isOralExamEnabled())) {

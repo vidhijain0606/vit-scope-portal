@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import styles from './DashboardView.module.css';
 import BookingCard, { BookingCardProps } from './BookingCard'; // Import interface
 import { useSession, signOut } from 'next-auth/react';
-import { checkAccess } from '@/utils/accessControl';
 import AlertModal from '../UI/AlertModal';
 import MyBookingsCalendar from './MyBookingsCalendar';
 import { List, CalendarDays } from 'lucide-react';
@@ -39,15 +38,22 @@ const DashboardView = () => {
             return;
         }
         if (user?.email) {
-            const access = checkAccess(user.email);
-            if (!access.isAllowed) {
-                setAlertData({
-                    isOpen: true,
-                    title: 'Access Restricted',
-                    message: access.reason || 'This portal is restricted to VIT Faculty only.',
-                    type: 'error'
+            fetch('/api/access-check')
+                .then((res) => res.json())
+                .then((access: { isAllowed: boolean; reason?: string }) => {
+                    if (!access.isAllowed) {
+                        setAlertData({
+                            isOpen: true,
+                            title: 'Access Restricted',
+                            message: access.reason || 'This portal is restricted to VIT Faculty only.',
+                            type: 'error'
+                        });
+                    }
+                })
+                .catch(() => {
+                    // Network/API failure here shouldn't block the dashboard outright —
+                    // the server-side signIn callback already gates session creation.
                 });
-            }
         }
     }, [session, user?.email]);
 

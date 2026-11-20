@@ -1,6 +1,6 @@
 -- Schema for Azure Database for PostgreSQL
--- Replaces database/supabase_setup.sql. No public RLS — authorization now happens
--- server-side in Next.js API routes (see src/app/api/**), not at the DB layer.
+-- No public RLS — authorization happens server-side in Next.js API routes
+-- (see src/app/api/**), not at the DB layer.
 
 CREATE TABLE IF NOT EXISTS admins (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -38,11 +38,16 @@ CREATE TABLE IF NOT EXISTS bookings (
     scholar_id TEXT,
     scholar_name TEXT,
     meeting_type TEXT,
-    location TEXT,
-    -- Prevents the same slot from being booked twice (fixes the race condition
-    -- in the old Supabase BookingView flow, which only set is_available after insert).
-    CONSTRAINT unique_slot_booking UNIQUE (slot_id)
+    location TEXT
 );
+
+-- Prevents the same slot from being actively double-booked, while still
+-- allowing a slot to be booked again after a prior booking on it was
+-- cancelled (a plain table-wide UNIQUE(slot_id) would reject that re-booking
+-- forever, since the cancelled row keeps the slot_id — see VAPT-11).
+CREATE UNIQUE INDEX IF NOT EXISTS unique_active_slot_booking
+    ON bookings (slot_id)
+    WHERE status != 'cancelled';
 
 CREATE TABLE IF NOT EXISTS documents (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -67,6 +72,14 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     email TEXT UNIQUE NOT NULL,
     name TEXT
+);
+
+-- Faculty allowed to sign in via Google OAuth (VAPT-15). Managed by the
+-- admin through the UI instead of being hardcoded in source, so access
+-- changes don't require a code change + redeploy.
+CREATE TABLE IF NOT EXISTS allowed_emails (
+    email TEXT PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Portal-wide admin-controlled feature flags, e.g. freezing/unfreezing

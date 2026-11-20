@@ -1,7 +1,9 @@
+import { randomUUID } from 'crypto';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { pool } from '@/lib/db';
 import { getContainerClient, getReadSasUrl } from '@/lib/blob';
+import { MAX_UPLOAD_BYTES, getAllowedContentType, matchesFileSignature } from '@/lib/fileValidation';
 
 export async function GET() {
   const session = await auth();
@@ -51,14 +53,48 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'File and title are required' }, { status: 400 });
   }
 
-  const container = getContainerClient();
-  const ext = file.name.split('.').pop();
-  const blobName = `${Date.now()}_${title.replace(/\s+/g, '_')}.${ext}`;
-  const blockBlobClient = container.getBlockBlobClient(blobName);
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json(
+      { error: `File exceeds the maximum allowed size (${MAX_UPLOAD_BYTES / (1024 * 1024)}MB).` },
+      { status: 413 }
+    );
+  }
+
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  const safeContentType = getAllowedContentType(ext);
+  if (!safeContentType) {
+    return NextResponse.json(
+      { error: 'Unsupported file type. Allowed: PDF, DOC(X), XLS(X), PPT(X).' },
+      { status: 400 }
+    );
+  }
 
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Verify the file's actual bytes match the declared extension — a
+  // renamed .html uploaded as "report.pdf" fails this check even though
+  // the extension and client-supplied MIME type both look fine.
+  if (!matchesFileSignature(buffer, ext)) {
+    return NextResponse.json(
+      { error: 'File contents do not match the declared file type.' },
+      { status: 400 }
+    );
+  }
+
+  const container = getContainerClient();
+  // Random, non-user-derived blob name: closes the path-traversal surface
+  // entirely (VAPT-06) since nothing from the request body reaches the path.
+  const blobName = `${randomUUID()}.${ext}`;
+  const blockBlobClient = container.getBlockBlobClient(blobName);
+
   await blockBlobClient.uploadData(buffer, {
-    blobHTTPHeaders: { blobContentType: file.type },
+    blobHTTPHeaders: {
+      // Forced, verified content type — never the client-supplied file.type
+      // — plus Content-Disposition so a browser downloads rather than
+      // renders the file, even for a type a viewer might otherwise sniff.
+      blobContentType: safeContentType,
+      blobContentDisposition: `attachment; filename="${encodeURIComponent(title)}.${ext}"`,
+    },
   });
 
   const { rows } = await pool.query(
