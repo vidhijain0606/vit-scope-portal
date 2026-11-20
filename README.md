@@ -2,6 +2,8 @@
 
 An integrated portal for managing research scholar meetings, slots, and document repositories for the SCOPE School at VIT.
 
+**Live site:** https://vit-scope-portal.azurewebsites.net/
+
 ## Features
 
 ### For Faculty (Dashboard)
