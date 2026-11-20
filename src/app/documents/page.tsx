@@ -43,7 +43,7 @@ export default function FacultyDocumentsPage() {
                     onClose={handleCloseModal}
                     title={selectedDoc.title}
                     fileUrl={selectedDoc.blob_url}
-                    isOffice={!!selectedDoc.blob_url.match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i)}
+                    isOffice={!!selectedDoc.blob_url.split('?')[0].match(/\.(doc|docx|xls|xlsx|ppt|pptx)$/i)}
                 />
             )}
             <header className={styles.header}>

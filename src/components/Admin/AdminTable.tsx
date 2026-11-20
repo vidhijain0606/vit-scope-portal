@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, Trash2 } from 'lucide-react'; // Added Trash2
 import styles from './AdminTable.module.css';
+import { csvCell } from '@/utils/csv';
 
 interface BookingRow {
     id: string;
@@ -138,19 +139,21 @@ const AdminTable = () => {
         // 1. Define CSV headers
         const headers = ['ID', 'Scholar Name', 'Reg No', 'Faculty Name', 'Meeting Type', 'Date', 'Time', 'Status'];
 
-        // 2. Format rows into CSV string
+        // 2. Format rows into CSV string — every cell goes through csvCell()
+        // so user-supplied values (scholar/faculty names) can't be read as a
+        // live spreadsheet formula when the file is opened (VAPT-03).
         const csvContent = [
-            headers.join(','),
+            headers.map(csvCell).join(','),
             ...getSortedRows().map(row => [
                 row.id,
-                `"${row.name}"`,
+                row.name,
                 row.regNo,
-                `"${row.faculty}"`,
-                `"${row.meetingType}"`,
+                row.faculty,
+                row.meetingType,
                 row.date,
                 row.time,
                 row.status
-            ].join(','))
+            ].map(csvCell).join(','))
         ].join('\n');
 
         // ... (keep download logic)
